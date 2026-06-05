@@ -45,9 +45,12 @@ async function initDatabase(db) {
     await db.execAsync("ALTER TABLE transactions ADD COLUMN currency TEXT DEFAULT 'UAH'");
   } catch {}
 
-  const count = await db.getFirstAsync('SELECT COUNT(*) as cnt FROM categories');
-  if (count.cnt === 0) {
+  // Migration: reset to new category set if version is outdated
+  const catVer = await db.getFirstAsync("SELECT value FROM settings WHERE key = 'categories_version'");
+  if (!catVer || catVer.value !== '2') {
+    await db.execAsync('DELETE FROM categories');
     await seedDefaultCategories(db);
+    await db.runAsync("INSERT OR REPLACE INTO settings (key, value) VALUES ('categories_version', '2')");
   }
 }
 
@@ -66,21 +69,24 @@ export async function setSetting(key, value) {
 
 async function seedDefaultCategories(db) {
   const defaults = [
-    ['Зарплата', 'income', '#4CAF50', 'briefcase'],
-    ['Фриланс', 'income', '#8BC34A', 'laptop'],
-    ['Инвестиции', 'income', '#009688', 'trending-up'],
-    ['Подарок', 'income', '#E91E63', 'gift'],
-    ['Еда', 'expense', '#FF5722', 'fast-food'],
-    ['Транспорт', 'expense', '#FF9800', 'car'],
-    ['Жилье', 'expense', '#9C27B0', 'home'],
-    ['Здоровье', 'expense', '#F44336', 'medkit'],
-    ['Развлечения', 'expense', '#2196F3', 'game-controller'],
-    ['Одежда', 'expense', '#00BCD4', 'shirt'],
-    ['Образование', 'expense', '#3F51B5', 'school'],
-    ['Связь', 'expense', '#607D8B', 'phone-portrait'],
-    ['Кафе', 'expense', '#795548', 'cafe'],
-    ['Спорт', 'expense', '#CDDC39', 'barbell'],
-    ['Другое', 'expense', '#9E9E9E', 'ellipse'],
+    // Expenses
+    ['Продукты',          'expense', '#FF5722', 'fast-food'],
+    ['Кафе',              'expense', '#795548', 'cafe'],
+    ['Досуг',             'expense', '#2196F3', 'game-controller'],
+    ['Транспорт',         'expense', '#FF9800', 'car'],
+    ['Подарки',           'expense', '#E91E63', 'gift'],
+    ['Покупки',           'expense', '#00BCD4', 'cart'],
+    ['Бизнес',            'expense', '#6C47FF', 'briefcase'],
+    ['Налоги и комиссии', 'expense', '#607D8B', 'receipt-outline'],
+    ['Аренда жилья',      'expense', '#9C27B0', 'home'],
+    ['Семья',             'expense', '#FF6B6B', 'people-outline'],
+    ['Здоровье',          'expense', '#F44336', 'medkit'],
+    // Income
+    ['Зарплата',     'income', '#4CAF50', 'cash-outline'],
+    ['Пассивно',     'income', '#009688', 'trending-up'],
+    ['Бизнес компы', 'income', '#FF9800', 'briefcase-outline'],
+    ['Индивидуалы',  'income', '#8BC34A', 'person-outline'],
+    ['Инвестиции',   'income', '#0652DD', 'analytics'],
   ];
 
   for (const [name, type, color, icon] of defaults) {

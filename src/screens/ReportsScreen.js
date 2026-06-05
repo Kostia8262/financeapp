@@ -6,20 +6,12 @@ import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getCategoryStats, getExtendedStats, getDailyData, getDailyDataBoth } from '../database/db';
-import { MONTH_NAMES, MONTH_NAMES_FULL } from '../utils/format';
 import { Colors } from '../theme/colors';
 import { useCurrency } from '../context/CurrencyContext';
+import { useLanguage } from '../context/LanguageContext';
 import CalendarModal from '../components/CalendarModal';
 
 const { width: SCREEN_W } = Dimensions.get('window');
-
-const PERIODS = [
-  { key: 'day',    label: 'День' },
-  { key: 'week',   label: 'Неделя' },
-  { key: 'month',  label: 'Месяц' },
-  { key: 'year',   label: 'Год' },
-  { key: 'custom', label: '📅' },
-];
 
 function iso(d) { return d.toISOString().slice(0, 10); }
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
@@ -46,19 +38,19 @@ function rangeForPeriod(period, anchor) {
   }
 }
 
-function periodLabel(period, from, to) {
+function periodLabel(period, from, to, months, locale) {
   if (!from) return '';
   const f = new Date(from + 'T00:00:00');
   const t = new Date(to   + 'T00:00:00');
   const sm = { day: 'numeric', month: 'short' };
   switch (period) {
-    case 'day':    return f.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-    case 'week':   return `${f.toLocaleDateString('ru-RU', sm)} — ${t.toLocaleDateString('ru-RU', sm)}`;
-    case 'month':  return `${MONTH_NAMES_FULL[f.getMonth()]} ${f.getFullYear()}`;
+    case 'day':    return f.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+    case 'week':   return `${f.toLocaleDateString(locale, sm)} — ${t.toLocaleDateString(locale, sm)}`;
+    case 'month':  return `${months[f.getMonth()]} ${f.getFullYear()}`;
     case 'year':   return String(f.getFullYear());
     case 'custom':
-      if (from === to) return f.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-      return `${f.toLocaleDateString('ru-RU', sm)} — ${t.toLocaleDateString('ru-RU', sm)}`;
+      if (from === to) return f.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+      return `${f.toLocaleDateString(locale, sm)} — ${t.toLocaleDateString(locale, sm)}`;
     default: return '';
   }
 }
@@ -77,7 +69,17 @@ function shiftAnchor(anchor, period, dir) {
 
 export default function ReportsScreen() {
   const { currency, fmt, fmtC } = useCurrency();
+  const { t } = useLanguage();
   const now = new Date();
+  const locale = t('locale');
+  const months = t('months');
+  const PERIODS = [
+    { key: 'day',    label: t('day') },
+    { key: 'week',   label: t('week') },
+    { key: 'month',  label: t('month') },
+    { key: 'year',   label: t('year') },
+    { key: 'custom', label: '📅' },
+  ];
   const [period, setPeriod]     = useState('month');
 
   const [anchor, setAnchor]     = useState(iso(now));
@@ -140,14 +142,14 @@ export default function ReportsScreen() {
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           style={s.hero}
         >
-          <Text style={s.heroTitle}>Аналитика</Text>
+          <Text style={s.heroTitle}>{t('analytics')}</Text>
           <Text
             style={[s.heroBalance, { color: totals.balance >= 0 ? '#A8FFE0' : '#FFB3B5' }]}
             numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}
           >
             {fmt(totals.balance)}
           </Text>
-          <Text style={s.heroSub}>Итог за период</Text>
+          <Text style={s.heroSub}>{t('period_total')}</Text>
         </LinearGradient>
 
         {/* ── Period selector ── */}
@@ -171,7 +173,7 @@ export default function ReportsScreen() {
             </TouchableOpacity>
           ) : <View style={s.navArrow} />}
           <TouchableOpacity style={s.navCenter} onPress={() => setShowCal(true)}>
-            <Text style={s.navLabel}>{periodLabel(period, range.from, range.to)}</Text>
+            <Text style={s.navLabel}>{periodLabel(period, range.from, range.to, months, locale)}</Text>
             <Ionicons name="calendar-outline" size={14} color={Colors.textMuted} />
           </TouchableOpacity>
           {canShift ? (
@@ -184,13 +186,13 @@ export default function ReportsScreen() {
         {/* ── Big toggle cards ── */}
         <View style={s.toggleRow}>
           <ToggleCard
-            label="Расходы" value={totals.expense}
+            label={t('expense')} value={totals.expense}
             color={Colors.expense} lightBg={Colors.expenseLight}
             active={tab === 'expense'}
             onPress={() => setTab('expense')}
           />
           <ToggleCard
-            label="Доходы" value={totals.income}
+            label={t('income')} value={totals.income}
             color={Colors.income} lightBg={Colors.incomeLight}
             active={tab === 'income'}
             onPress={() => setTab('income')}
@@ -222,17 +224,17 @@ export default function ReportsScreen() {
               })}
             </View>
             <View style={s.chartLegend}>
-              <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.income  }]} /><Text style={s.legTxt}>Доходы</Text></View>
-              <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.expense }]} /><Text style={s.legTxt}>Расходы</Text></View>
+              <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.income  }]} /><Text style={s.legTxt}>{t('income')}</Text></View>
+              <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.expense }]} /><Text style={s.legTxt}>{t('expense')}</Text></View>
             </View>
           </View>
         )}
 
         {/* ── Stats row ── */}
         <View style={s.statsRow}>
-          <StatPill label="День (ср.)" value={extended.dayAvg}  color={Colors.textSecondary} />
-          <StatPill label="Сегодня"   value={extended.todayTotal} color={tab === 'expense' ? Colors.expense : Colors.income} />
-          <StatPill label="Неделя"    value={extended.weekTotal}  color={Colors.primary} />
+          <StatPill label={t('day_avg')} value={extended.dayAvg}    color={Colors.textSecondary} />
+          <StatPill label={t('today')}   value={extended.todayTotal} color={tab === 'expense' ? Colors.expense : Colors.income} />
+          <StatPill label={t('week')}    value={extended.weekTotal}  color={Colors.primary} />
         </View>
 
         {/* ── Category breakdown ── */}
@@ -241,8 +243,8 @@ export default function ReportsScreen() {
             <View style={s.emptyIcon}>
               <Ionicons name="bar-chart-outline" size={32} color={Colors.primary} />
             </View>
-            <Text style={s.emptyTitle}>Нет данных</Text>
-            <Text style={s.emptyText}>Добавьте операции за этот период</Text>
+            <Text style={s.emptyTitle}>{t('no_data')}</Text>
+            <Text style={s.emptyText}>{t('add_ops_period')}</Text>
           </View>
         ) : (
           <View style={s.catList}>
@@ -263,7 +265,7 @@ export default function ReportsScreen() {
                     <View style={s.trackBg}>
                       <View style={[s.trackFill, { width: `${pct * 100}%`, backgroundColor: item.color }]} />
                     </View>
-                    <Text style={s.catMeta}>{(pct * 100).toFixed(1)}%  ·  {item.count} операций</Text>
+                    <Text style={s.catMeta}>{(pct * 100).toFixed(1)}%  ·  {item.count} {t('ops_suffix')}</Text>
                   </View>
                 </View>
               );

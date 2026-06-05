@@ -10,15 +10,16 @@ import { getTransactions, deleteTransaction } from '../database/db';
 import { formatDate } from '../utils/format';
 import { Colors } from '../theme/colors';
 import { useCurrency } from '../context/CurrencyContext';
-
-const FILTERS = [
-  { key: 'all', label: 'Все' },
-  { key: 'income', label: 'Доходы' },
-  { key: 'expense', label: 'Расходы' },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 export default function TransactionsScreen({ navigation }) {
   const { currency, fmt } = useCurrency();
+  const { t } = useLanguage();
+  const FILTERS = [
+    { key: 'all',     label: t('all') },
+    { key: 'income',  label: t('income') },
+    { key: 'expense', label: t('expense') },
+  ];
   const [transactions, setTransactions] = useState([]);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
@@ -35,9 +36,9 @@ export default function TransactionsScreen({ navigation }) {
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const handleDelete = (id) => {
-    Alert.alert('Удалить?', 'Операция будет удалена безвозвратно', [
-      { text: 'Отмена', style: 'cancel' },
-      { text: 'Удалить', style: 'destructive', onPress: async () => {
+    Alert.alert(t('delete_title'), t('delete_confirm'), [
+      { text: t('cancel'), style: 'cancel' },
+      { text: t('delete'), style: 'destructive', onPress: async () => {
         await deleteTransaction(id);
         load();
       }},
@@ -73,7 +74,7 @@ export default function TransactionsScreen({ navigation }) {
           <Ionicons name={item.category_icon || 'ellipse'} size={20} color={item.category_color || Colors.primary} />
         </View>
         <View style={s.info}>
-          <Text style={s.category}>{item.category_name || 'Без категории'}</Text>
+          <Text style={s.category}>{item.category_name || t('no_category')}</Text>
           {item.note ? <Text style={s.note} numberOfLines={1}>{item.note}</Text> : null}
         </View>
         <View style={s.right}>
@@ -107,7 +108,7 @@ export default function TransactionsScreen({ navigation }) {
 
       <View style={s.header}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Text style={s.title}>Операции</Text>
+          <Text style={s.title}>{t('transactions')}</Text>
           <View style={[s.currBadge, { backgroundColor: Colors.primaryLight }]}>
             <Text style={[s.currBadgeTxt, { color: Colors.primary }]}>{currency.flag} {currency.code}</Text>
           </View>
@@ -124,7 +125,7 @@ export default function TransactionsScreen({ navigation }) {
           style={s.searchInput}
           value={search}
           onChangeText={setSearch}
-          placeholder="Поиск по категории, заметке..."
+          placeholder={t('search_placeholder')}
           placeholderTextColor={Colors.textMuted}
         />
         {search ? (
@@ -164,8 +165,8 @@ export default function TransactionsScreen({ navigation }) {
             <View style={s.emptyIcon}>
               <Ionicons name="receipt-outline" size={32} color={Colors.primary} />
             </View>
-            <Text style={s.emptyTitle}>Нет операций</Text>
-            <Text style={s.emptyText}>Добавьте первую запись через +</Text>
+            <Text style={s.emptyTitle}>{t('no_transactions')}</Text>
+            <Text style={s.emptyText}>{t('add_first')}</Text>
           </View>
         }
         showsVerticalScrollIndicator={false}

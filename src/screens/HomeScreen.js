@@ -1,7 +1,7 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  RefreshControl, StatusBar, Dimensions, PanResponder, Modal,
+  Animated, Dimensions, Modal, PanResponder, RefreshControl,
+  ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View,
 } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,11 +9,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
   getRangeBalance, getTransactions, getCategoryStats, getCategories,
 } from '../database/db';
-import { formatShortDate, MONTH_NAMES_FULL } from '../utils/format';
+import { formatShortDate } from '../utils/format';
 import { Colors } from '../theme/colors';
 import DonutChart from '../components/DonutChart';
 import CalendarModal from '../components/CalendarModal';
 import { useCurrency } from '../context/CurrencyContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const SIDE_PAD = 12;
@@ -59,27 +60,27 @@ function shiftAnchor(anchor, periodType, dir) {
   return iso(d);
 }
 
-function getPeriodLabel(periodType, anchor, customFrom, customTo) {
+function getPeriodLabel(periodType, anchor, customFrom, customTo, months, locale, allTimeLabel) {
+  if (periodType === 'all') return allTimeLabel;
   const d = new Date(anchor + 'T00:00:00');
   const sm = { day: 'numeric', month: 'short' };
-  if (periodType === 'all')   return 'ВСЁ ВРЕМЯ';
-  if (periodType === 'today') return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }).toUpperCase();
-  if (periodType === 'day')   return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }).toUpperCase();
+  if (periodType === 'today') return d.toLocaleDateString(locale, { day: 'numeric', month: 'long' }).toUpperCase();
+  if (periodType === 'day')   return d.toLocaleDateString(locale, { day: 'numeric', month: 'long' }).toUpperCase();
   if (periodType === 'week') {
     const mon = new Date(d);
     mon.setDate(d.getDate() - ((d.getDay() + 6) % 7));
     const sun = addDays(mon, 6);
-    return `${mon.toLocaleDateString('ru-RU', sm)} – ${sun.toLocaleDateString('ru-RU', sm)}`.toUpperCase();
+    return `${mon.toLocaleDateString(locale, sm)} – ${sun.toLocaleDateString(locale, sm)}`.toUpperCase();
   }
   if (periodType === 'month') {
-    return `${(MONTH_NAMES_FULL[d.getMonth()] || '').toUpperCase()} ${d.getFullYear()}`;
+    return `${(months[d.getMonth()] || '').toUpperCase()} ${d.getFullYear()}`;
   }
-  if (periodType === 'year')  return String(d.getFullYear());
+  if (periodType === 'year') return String(d.getFullYear());
   if (periodType === 'range' && customFrom && customTo) {
     const f = new Date(customFrom + 'T00:00:00');
     const t = new Date(customTo   + 'T00:00:00');
-    if (customFrom === customTo) return f.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }).toUpperCase();
-    return `${f.toLocaleDateString('ru-RU', sm)} – ${t.toLocaleDateString('ru-RU', sm)}`.toUpperCase();
+    if (customFrom === customTo) return f.toLocaleDateString(locale, { day: 'numeric', month: 'long' }).toUpperCase();
+    return `${f.toLocaleDateString(locale, sm)} – ${t.toLocaleDateString(locale, sm)}`.toUpperCase();
   }
   return '';
 }
@@ -98,10 +99,32 @@ function getPeriodBadge(periodType, anchor) {
 
 const NAVIGABLE = new Set(['day', 'today', 'week', 'month', 'year']);
 
+// ─── Skeleton ─────────────────────────────────────────────────
+
+function Skeleton({ width, height, radius = 10, style }) {
+  const pulse = useRef(new Animated.Value(0.3)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 0.75, duration: 650, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0.3,  duration: 650, useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
+  return (
+    <Animated.View
+      style={[{ backgroundColor: Colors.border, borderRadius: radius, opacity: pulse }, style, { width, height }]}
+    />
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────
 
 export default function HomeScreen({ navigation }) {
   const { currency, fmt, fmtC } = useCurrency();
+  const { t } = useLanguage();
   const now = new Date();
   const todayIso = iso(now);
 
@@ -111,19 +134,31 @@ export default function HomeScreen({ navigation }) {
   const [customTo,    setCustomTo]    = useState(todayIso);
   const [showSheet,   setShowSheet]   = useState(false);
   const [showCal,     setShowCal]     = useState(false);
-  const [calMode,     setCalMode]     = useState('range'); // 'single' | 'range'
+  const [calMode,     setCalMode]     = useState('range');
+  const [monthly,     setMonthly]     = useState({ income: 0, expense: 0, balance: 0 });
+  const [recent,      setRecent]      = useState([]);
+  const [allCats,     setAllCats]     = useState({ income: [], expense: [] });
+  const [chartTab,    setChartTab]    = useState('expense');
+  const [refreshing,  setRefreshing]  = useState(false);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
-  const [monthly, setMonthly]   = useState({ income: 0, expense: 0, balance: 0 });
-  const [recent, setRecent]     = useState([]);
-  const [allCats, setAllCats]   = useState({ income: [], expense: [] });
-  const [chartTab, setChartTab] = useState('expense');
-  const [refreshing, setRefreshing] = useState(false);
+  // ─── Animation refs ───────────────────────────────────────
+  const slideX       = useRef(new Animated.Value(0)).current;
+  const fadeAnim     = useRef(new Animated.Value(0)).current;
+  const periodTypeRef = useRef('month');
+  const canNavigateRef = useRef(true);
 
+  useEffect(() => {
+    periodTypeRef.current = periodType;
+    canNavigateRef.current = NAVIGABLE.has(periodType);
+  }, [periodType]);
+
+  // ─── Data ─────────────────────────────────────────────────
   const { dateFrom, dateTo } = getDateRange(periodType, anchorDate, customFrom, customTo);
 
   const load = useCallback(async () => {
     const cur = currency.code;
-    const [m, t, allInc, allExp, si, se] = await Promise.all([
+    const [m, tx, allInc, allExp, si, se] = await Promise.all([
       getRangeBalance(dateFrom, dateTo, cur),
       getTransactions({ limit: 8, currency: cur }),
       getCategories('income'),
@@ -132,7 +167,7 @@ export default function HomeScreen({ navigation }) {
       getCategoryStats({ type: 'expense', dateFrom, dateTo, currency: cur }),
     ]);
     setMonthly(m);
-    setRecent(t);
+    setRecent(tx);
     setAllCats({
       income:  allInc.map(cat => {
         const stat = si.find(s => s.id === cat.id);
@@ -143,17 +178,30 @@ export default function HomeScreen({ navigation }) {
         return { id: cat.id, name: cat.name, value: stat?.total || 0, color: cat.color, icon: cat.icon };
       }),
     });
+    setIsFirstLoad(false);
+    Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
   }, [currency.code, dateFrom, dateTo]);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
-  const onRefresh = async () => { setRefreshing(true); await load(); setRefreshing(false); };
+  useFocusEffect(useCallback(() => {
+    fadeAnim.setValue(isFirstLoad ? 0 : 0.6);
+    load();
+  }, [load]));
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    fadeAnim.setValue(0.5);
+    await load();
+    setRefreshing(false);
+  };
+
+  // ─── Navigation ───────────────────────────────────────────
   const canNavigate = NAVIGABLE.has(periodType);
-  const prevPeriod = () => setAnchorDate(a => shiftAnchor(a, periodType, -1));
-  const nextPeriod = () => setAnchorDate(a => shiftAnchor(a, periodType, 1));
+  const prevPeriod = () => setAnchorDate(a => shiftAnchor(a, periodTypeRef.current, -1));
+  const nextPeriod = () => setAnchorDate(a => shiftAnchor(a, periodTypeRef.current, 1));
 
   const selectPeriod = (type) => {
     setShowSheet(false);
+    fadeAnim.setValue(0.5);
     if (type === 'day') {
       setCalMode('single');
       setShowCal(true);
@@ -175,37 +223,56 @@ export default function HomeScreen({ navigation }) {
     else if (type === 'week' || type === 'year') setAnchorDate(todayIso);
   };
 
+  // ─── Swipe pan responder ──────────────────────────────────
+  const swipePan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, { dx, dy }) =>
+        canNavigateRef.current && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8,
+      onPanResponderMove: (_, { dx }) => {
+        slideX.setValue(dx * 0.38);
+      },
+      onPanResponderRelease: (_, { dx }) => {
+        if (!canNavigateRef.current || Math.abs(dx) < 50) {
+          Animated.spring(slideX, { toValue: 0, tension: 100, friction: 8, useNativeDriver: true }).start();
+          return;
+        }
+        const dir = dx > 0 ? 1 : -1;
+        const pt  = periodTypeRef.current;
+        Animated.timing(slideX, {
+          toValue: dir * SCREEN_W, duration: 200, useNativeDriver: true,
+        }).start(() => {
+          if (dir > 0) setAnchorDate(a => shiftAnchor(a, pt, -1));
+          else         setAnchorDate(a => shiftAnchor(a, pt, 1));
+          slideX.setValue(-dir * SCREEN_W * 0.5);
+          Animated.spring(slideX, {
+            toValue: 0, tension: 65, friction: 9, useNativeDriver: true,
+          }).start();
+        });
+      },
+    })
+  ).current;
+
+  // ─── Derived state ────────────────────────────────────────
   const savingsRate = monthly.income > 0
     ? Math.round((monthly.balance / monthly.income) * 100)
     : 0;
 
   const cats = allCats[chartTab];
-  const sortedCats = [...cats].sort((a, b) => b.value - a.value);
-  const donutData = sortedCats.filter(c => c.value > 0);
-
+  const sortedCats  = [...cats].sort((a, b) => b.value - a.value);
+  const donutData   = sortedCats.filter(c => c.value > 0);
   const hasSideCats = allCats.income.length > 4 || allCats.expense.length > 4;
-  const topCats    = sortedCats.slice(0, 4);
-  const leftCats   = sortedCats.slice(4, 6);
-  const rightCats  = sortedCats.slice(6, 8);
-  const bottomCats = sortedCats.slice(8, 12);
+  const topCats     = sortedCats.slice(0, 4);
+  const leftCats    = sortedCats.slice(4, 6);
+  const rightCats   = sortedCats.slice(6, 8);
+  const bottomCats  = sortedCats.slice(8, 12);
 
   const openAdd = (cat) => {
     navigation.navigate('AddTransaction', { initialType: chartTab, initialCategoryId: cat.id });
   };
 
-  const swipePan = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, { dx, dy }) =>
-        canNavigate && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 12,
-      onPanResponderRelease: (_, { dx }) => {
-        if (!canNavigate) return;
-        if (dx > 50) prevPeriod();
-        else if (dx < -50) nextPeriod();
-      },
-    })
-  ).current;
-
-  const periodLabel = getPeriodLabel(periodType, anchorDate, customFrom, customTo);
+  const locale = t('locale');
+  const months = t('months');
+  const periodLabel = getPeriodLabel(periodType, anchorDate, customFrom, customTo, months, locale, t('all_time').toUpperCase());
   const periodBadge = getPeriodBadge(periodType, anchorDate);
 
   return (
@@ -232,7 +299,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={s.heroBalance} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>
                 {fmt(monthly.balance)}
               </Text>
-              <Text style={s.heroSub}>Баланс за период</Text>
+              <Text style={s.heroSub}>{t('period_balance')}</Text>
             </View>
             <TouchableOpacity style={s.profileBtn} onPress={() => navigation.navigate('Profile')}>
               <Ionicons name="person-circle-outline" size={26} color="rgba(255,255,255,0.9)" />
@@ -240,16 +307,19 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           <View style={s.heroStats}>
-            <HeroStat icon="arrow-up"    iconBg="rgba(0,196,140,0.25)"  iconColor="#00E6A8" label="Доходы"    value={monthly.income} />
+            <HeroStat icon="arrow-up"    iconBg="rgba(0,196,140,0.25)"  iconColor="#00E6A8" label={t('income')}   value={monthly.income} />
             <View style={s.heroDivider} />
-            <HeroStat icon="arrow-down"  iconBg="rgba(255,90,95,0.25)"  iconColor="#FF8A8E" label="Расходы"   value={monthly.expense} />
+            <HeroStat icon="arrow-down"  iconBg="rgba(255,90,95,0.25)"  iconColor="#FF8A8E" label={t('expense')}  value={monthly.expense} />
             <View style={s.heroDivider} />
-            <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor="#fff"    label="Накоплено" value={null} text={`${savingsRate}%`} />
+            <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor="#fff"    label={t('surplus')}  value={null} text={`${savingsRate}%`} />
           </View>
         </LinearGradient>
 
-        {/* ── Category section with swipe ── */}
-        <View {...swipePan.panHandlers}>
+        {/* ── Swipeable category section ── */}
+        <Animated.View
+          {...swipePan.panHandlers}
+          style={{ transform: [{ translateX: slideX }] }}
+        >
           {/* Period selector bar */}
           <View style={s.monthRow}>
             {canNavigate ? (
@@ -273,61 +343,74 @@ export default function HomeScreen({ navigation }) {
             ) : <View style={s.monthArrow} />}
           </View>
 
-          {/* Radial layout */}
-          <View style={s.section}>
-            {topCats.length > 0 && (
-              <View style={s.chipRow}>
-                {topCats.map(cat => (
-                  <CatChip key={cat.id} cat={cat} width={CHIP_TOP_W} onPress={() => openAdd(cat)} />
-                ))}
-              </View>
-            )}
-
-            <View style={s.middleRow}>
-              {hasSideCats && (
-                <View style={[s.sideCol, { width: CHIP_SIDE_W }]}>
-                  {leftCats.map(cat => (
-                    <CatChip key={cat.id} cat={cat} width={CHIP_SIDE_W} onPress={() => openAdd(cat)} />
-                  ))}
+          {/* Radial layout — skeleton on first load */}
+          <Animated.View style={[s.section, { opacity: fadeAnim }]}>
+            {isFirstLoad ? (
+              <View>
+                <View style={s.chipRow}>
+                  {[0,1,2,3].map(i => <Skeleton key={i} width={CHIP_TOP_W - 4} height={74} radius={14} style={{ margin: 2 }} />)}
                 </View>
-              )}
-              <View style={[s.donutWrap, { width: hasSideCats ? DONUT_SIZE : DONUT_SIZE_FULL }]}>
-                <DonutChart
-                  data={donutData}
-                  size={hasSideCats ? DONUT_SIZE - 8 : DONUT_SIZE_FULL - 8}
-                  label={chartTab === 'expense' ? 'РАСХОДЫ' : 'ДОХОДЫ'}
-                  mainAmount={fmtC(chartTab === 'expense' ? monthly.expense : monthly.income)}
-                  mainColor={chartTab === 'expense' ? Colors.expense : Colors.income}
-                  secondaryAmount={fmtC(chartTab === 'expense' ? monthly.income : monthly.expense)}
-                  secondaryColor={chartTab === 'expense' ? Colors.income : Colors.expense}
-                  onPress={() => setChartTab(t => t === 'expense' ? 'income' : 'expense')}
-                />
-              </View>
-              {hasSideCats && (
-                <View style={[s.sideCol, { width: CHIP_SIDE_W }]}>
-                  {rightCats.map(cat => (
-                    <CatChip key={cat.id} cat={cat} width={CHIP_SIDE_W} onPress={() => openAdd(cat)} />
-                  ))}
+                <View style={s.middleRow}>
+                  <Skeleton width={DONUT_SIZE_FULL} height={DONUT_SIZE_FULL} radius={DONUT_SIZE_FULL / 2} />
                 </View>
-              )}
-            </View>
-
-            {bottomCats.length > 0 && (
-              <View style={s.chipRow}>
-                {bottomCats.map(cat => (
-                  <CatChip key={cat.id} cat={cat} width={CHIP_TOP_W} onPress={() => openAdd(cat)} />
-                ))}
               </View>
+            ) : (
+              <>
+                {topCats.length > 0 && (
+                  <View style={s.chipRow}>
+                    {topCats.map(cat => (
+                      <CatChip key={cat.id} cat={cat} width={CHIP_TOP_W} onPress={() => openAdd(cat)} />
+                    ))}
+                  </View>
+                )}
+
+                <View style={s.middleRow}>
+                  {hasSideCats && (
+                    <View style={[s.sideCol, { width: CHIP_SIDE_W }]}>
+                      {leftCats.map(cat => (
+                        <CatChip key={cat.id} cat={cat} width={CHIP_SIDE_W} onPress={() => openAdd(cat)} />
+                      ))}
+                    </View>
+                  )}
+                  <View style={[s.donutWrap, { width: hasSideCats ? DONUT_SIZE : DONUT_SIZE_FULL }]}>
+                    <DonutChart
+                      data={donutData}
+                      size={hasSideCats ? DONUT_SIZE - 8 : DONUT_SIZE_FULL - 8}
+                      label={chartTab === 'expense' ? t('expense').toUpperCase() : t('income').toUpperCase()}
+                      mainAmount={fmtC(chartTab === 'expense' ? monthly.expense : monthly.income)}
+                      mainColor={chartTab === 'expense' ? Colors.expense : Colors.income}
+                      secondaryAmount={fmtC(chartTab === 'expense' ? monthly.income : monthly.expense)}
+                      secondaryColor={chartTab === 'expense' ? Colors.income : Colors.expense}
+                      onPress={() => setChartTab(prev => prev === 'expense' ? 'income' : 'expense')}
+                    />
+                  </View>
+                  {hasSideCats && (
+                    <View style={[s.sideCol, { width: CHIP_SIDE_W }]}>
+                      {rightCats.map(cat => (
+                        <CatChip key={cat.id} cat={cat} width={CHIP_SIDE_W} onPress={() => openAdd(cat)} />
+                      ))}
+                    </View>
+                  )}
+                </View>
+
+                {bottomCats.length > 0 && (
+                  <View style={s.chipRow}>
+                    {bottomCats.map(cat => (
+                      <CatChip key={cat.id} cat={cat} width={CHIP_TOP_W} onPress={() => openAdd(cat)} />
+                    ))}
+                  </View>
+                )}
+              </>
             )}
-          </View>
-        </View>
+          </Animated.View>
+        </Animated.View>
 
         {/* ── Recent Transactions ── */}
         <View style={[s.section, { marginBottom: 100 }]}>
           <View style={s.sectionHeader}>
-            <Text style={s.sectionTitle}>Последние операции</Text>
+            <Text style={s.sectionTitle}>{t('recent_ops')}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Transactions')}>
-              <Text style={s.seeAll}>Все →</Text>
+              <Text style={s.seeAll}>{t('see_all')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -336,13 +419,13 @@ export default function HomeScreen({ navigation }) {
               <View style={s.emptyIcon}>
                 <Ionicons name="receipt-outline" size={32} color={Colors.primary} />
               </View>
-              <Text style={s.emptyTitle}>Нет операций</Text>
-              <Text style={s.emptyText}>Нажмите + чтобы добавить</Text>
+              <Text style={s.emptyTitle}>{t('no_ops')}</Text>
+              <Text style={s.emptyText}>{t('tap_to_add')}</Text>
             </View>
           ) : (
             <View style={s.txCard}>
-              {recent.map((t, i) => (
-                <TxRow key={t.id} item={t} last={i === recent.length - 1} />
+              {recent.map((tx, i) => (
+                <TxRow key={tx.id} item={tx} last={i === recent.length - 1} noCategory={t('no_category')} />
               ))}
             </View>
           )}
@@ -350,17 +433,22 @@ export default function HomeScreen({ navigation }) {
       </ScrollView>
 
       {/* ── Period Picker Bottom Sheet ── */}
-      <Modal visible={showSheet} transparent animationType="slide">
+      <Modal visible={showSheet} transparent animationType="fade">
         <View style={s.overlay}>
           <TouchableOpacity style={s.overlayBg} activeOpacity={1} onPress={() => setShowSheet(false)} />
-          <PeriodSheet
-            periodType={periodType}
-            anchorDate={anchorDate}
-            customFrom={customFrom}
-            customTo={customTo}
-            onSelect={selectPeriod}
-            onClose={() => setShowSheet(false)}
-          />
+          <Animated.View style={{ transform: [{ translateY: showSheet ? 0 : 300 }] }}>
+            <PeriodSheet
+              periodType={periodType}
+              anchorDate={anchorDate}
+              customFrom={customFrom}
+              customTo={customTo}
+              onSelect={selectPeriod}
+              onClose={() => setShowSheet(false)}
+              t={t}
+              locale={locale}
+              months={months}
+            />
+          </Animated.View>
         </View>
       </Modal>
 
@@ -371,14 +459,14 @@ export default function HomeScreen({ navigation }) {
         mode={calMode === 'range' ? 'range' : 'range'}
         from={calMode === 'range' ? customFrom : anchorDate}
         to={calMode === 'range' ? customTo : anchorDate}
-        onApply={(f, t) => {
+        onApply={(f, tv) => {
           if (calMode === 'single') {
             setPeriodType('day');
             setAnchorDate(f);
           } else {
             setPeriodType('range');
             setCustomFrom(f);
-            setCustomTo(t);
+            setCustomTo(tv);
           }
           setShowCal(false);
         }}
@@ -389,9 +477,8 @@ export default function HomeScreen({ navigation }) {
 
 // ─── Period Sheet ─────────────────────────────────────────────
 
-function PeriodSheet({ periodType, anchorDate, customFrom, customTo, onSelect, onClose }) {
+function PeriodSheet({ periodType, anchorDate, customFrom, customTo, onSelect, onClose, t, locale, months }) {
   const now = new Date();
-  const todayIso = iso(now);
   const d = new Date(anchorDate + 'T00:00:00');
 
   const weekMon = new Date(d);
@@ -399,14 +486,15 @@ function PeriodSheet({ periodType, anchorDate, customFrom, customTo, onSelect, o
   const weekSun = addDays(weekMon, 6);
   const sm = { day: 'numeric', month: 'short' };
 
-  const weekLabel = `${weekMon.toLocaleDateString('ru-RU', sm)} – ${weekSun.toLocaleDateString('ru-RU', sm)}`;
-  const todayLabel = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-  const monthLabel = `${MONTH_NAMES_FULL[d.getMonth()]} ${d.getFullYear()}`;
-  const yearLabel  = `${d.getFullYear()} год`;
+  const weekLabel  = `${weekMon.toLocaleDateString(locale, sm)} – ${weekSun.toLocaleDateString(locale, sm)}`;
+  const todayLabel = now.toLocaleDateString(locale, { day: 'numeric', month: 'long' });
+  const monthLabel = `${months[d.getMonth()]} ${d.getFullYear()}`;
+  const ys = t('year_suffix');
+  const yearLabel  = ys ? `${d.getFullYear()} ${ys}` : `${d.getFullYear()}`;
   const rangeLabel = customFrom && customTo
     ? customFrom === customTo
-      ? new Date(customFrom + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
-      : `${new Date(customFrom + 'T00:00:00').toLocaleDateString('ru-RU', sm)} – ${new Date(customTo + 'T00:00:00').toLocaleDateString('ru-RU', sm)}`
+      ? new Date(customFrom + 'T00:00:00').toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
+      : `${new Date(customFrom + 'T00:00:00').toLocaleDateString(locale, sm)} – ${new Date(customTo + 'T00:00:00').toLocaleDateString(locale, sm)}`
     : monthLabel;
 
   const isActive = (type) => periodType === type;
@@ -415,13 +503,12 @@ function PeriodSheet({ periodType, anchorDate, customFrom, customTo, onSelect, o
     <View style={ps.sheet}>
       <View style={ps.handle} />
       <View style={ps.header}>
-        <Text style={ps.title}>Период</Text>
+        <Text style={ps.title}>{t('period')}</Text>
         <TouchableOpacity onPress={onClose} style={ps.closeBtn}>
           <Ionicons name="close" size={20} color={Colors.textMuted} />
         </TouchableOpacity>
       </View>
 
-      {/* Range row — full width */}
       <TouchableOpacity
         style={[ps.optionWide, isActive('range') && ps.optionActive]}
         onPress={() => onSelect('range')}
@@ -431,19 +518,18 @@ function PeriodSheet({ periodType, anchorDate, customFrom, customTo, onSelect, o
           <Ionicons name="ellipsis-horizontal" size={18} color={isActive('range') ? '#fff' : Colors.text} />
         </View>
         <View>
-          <Text style={[ps.optLabel, isActive('range') && ps.optLabelActive]}>Выбрать диапазон</Text>
+          <Text style={[ps.optLabel, isActive('range') && ps.optLabelActive]}>{t('choose_range')}</Text>
           <Text style={[ps.optSub, isActive('range') && ps.optSubActive]}>{rangeLabel}</Text>
         </View>
       </TouchableOpacity>
 
-      {/* 2×2 grid */}
       <View style={ps.grid}>
-        <PeriodOption badge="∞"    label="Все время" sub=""            type="all"   active={isActive('all')}   onPress={onSelect} />
-        <PeriodOption icon="calendar" label="Выбрать день" sub={todayLabel} type="day" active={isActive('day')} onPress={onSelect} />
-        <PeriodOption badge="7"    label="Неделя"    sub={weekLabel}   type="week"  active={isActive('week')}  onPress={onSelect} />
-        <PeriodOption badge="1"    label="Сегодня"   sub={todayLabel}  type="today" active={isActive('today')} onPress={onSelect} />
-        <PeriodOption badge="365"  label="Год"       sub={yearLabel}   type="year"  active={isActive('year')}  onPress={onSelect} />
-        <PeriodOption badge={String(daysInMonth(d.getFullYear(), d.getMonth() + 1))} label="Месяц" sub={monthLabel} type="month" active={isActive('month')} onPress={onSelect} />
+        <PeriodOption badge="∞"      label={t('all_time')}   sub=""          type="all"   active={isActive('all')}   onPress={onSelect} />
+        <PeriodOption icon="calendar" label={t('choose_day')} sub={todayLabel} type="day"  active={isActive('day')}   onPress={onSelect} />
+        <PeriodOption badge="7"      label={t('week')}       sub={weekLabel}  type="week"  active={isActive('week')}  onPress={onSelect} />
+        <PeriodOption badge="1"      label={t('today')}      sub={todayLabel} type="today" active={isActive('today')} onPress={onSelect} />
+        <PeriodOption badge="365"    label={t('year')}       sub={yearLabel}  type="year"  active={isActive('year')}  onPress={onSelect} />
+        <PeriodOption badge={String(daysInMonth(d.getFullYear(), d.getMonth() + 1))} label={t('month')} sub={monthLabel} type="month" active={isActive('month')} onPress={onSelect} />
       </View>
     </View>
   );
@@ -473,7 +559,7 @@ function PeriodOption({ badge, icon, label, sub, type, active, onPress }) {
 function CatChip({ cat, width, onPress }) {
   const { fmtC, currency } = useCurrency();
   const hasAmt = cat.value > 0;
-  const iconSize = width < 85 ? 20 : 22;
+  const iconSize   = width < 85 ? 20 : 22;
   const circleSize = width < 85 ? 44 : 50;
   return (
     <TouchableOpacity style={[s.chip, { width }]} onPress={onPress} activeOpacity={0.7}>
@@ -505,7 +591,7 @@ function HeroStat({ icon, iconBg, iconColor, label, value, text }) {
   );
 }
 
-function TxRow({ item, last }) {
+function TxRow({ item, last, noCategory }) {
   const { fmtC } = useCurrency();
   const isIncome = item.type === 'income';
   return (
@@ -514,7 +600,7 @@ function TxRow({ item, last }) {
         <Ionicons name={item.category_icon || 'ellipse'} size={20} color={item.category_color || Colors.primary} />
       </View>
       <View style={s.txBody}>
-        <Text style={s.txCat}>{item.category_name || 'Без категории'}</Text>
+        <Text style={s.txCat}>{item.category_name || noCategory}</Text>
         {item.note ? <Text style={s.txNote} numberOfLines={1}>{item.note}</Text> : null}
       </View>
       <View style={s.txRight}>
@@ -645,26 +731,18 @@ const ps = StyleSheet.create({
     backgroundColor: Colors.bgInput,
     alignItems: 'center', justifyContent: 'center',
   },
-
-  // Wide range option
   optionWide: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
     backgroundColor: Colors.bgInput, borderRadius: 18,
     padding: 16, marginBottom: 10,
   },
-
-  // 2×3 grid
-  grid: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: 10,
-  },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   option: {
     width: (SCREEN_W - 32 - 10) / 2,
     backgroundColor: Colors.bgInput, borderRadius: 18,
     padding: 16, gap: 4,
   },
-
   optionActive: { backgroundColor: Colors.text },
-
   iconBox: {
     width: 40, height: 40, borderRadius: 12,
     backgroundColor: Colors.bgCard,
@@ -672,13 +750,8 @@ const ps = StyleSheet.create({
     marginBottom: 4,
     borderWidth: 1.5, borderColor: Colors.border,
   },
-  iconBoxActive: {
-    backgroundColor: '#6C47FF',
-    borderColor: '#6C47FF',
-  },
-
+  iconBoxActive: { backgroundColor: '#6C47FF', borderColor: '#6C47FF' },
   badgeTxt: { fontSize: 13, fontWeight: '800', color: Colors.text },
-
   optLabel: { fontSize: 14, fontWeight: '700', color: Colors.text },
   optLabelActive: { color: '#fff' },
   optSub: { fontSize: 11, color: Colors.textMuted },

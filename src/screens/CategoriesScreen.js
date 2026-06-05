@@ -7,6 +7,7 @@ import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { getCategories, addCategory, updateCategory, deleteCategory } from '../database/db';
 import { Colors } from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 
 const ICONS = [
   'fast-food', 'car', 'home', 'medkit', 'game-controller', 'shirt',
@@ -23,6 +24,7 @@ const PALETTE = [
 ];
 
 export default function CategoriesScreen() {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState([]);
   const [tab, setTab] = useState('expense');
   const [showModal, setShowModal] = useState(false);
@@ -55,7 +57,7 @@ export default function CategoriesScreen() {
   };
 
   const handleSave = async () => {
-    if (!name.trim()) { Alert.alert('Ошибка', 'Введите название категории'); return; }
+    if (!name.trim()) { Alert.alert(t('error'), t('cat_error_empty')); return; }
     if (editingId) {
       await updateCategory(editingId, { name: name.trim(), color, icon });
     } else {
@@ -66,9 +68,9 @@ export default function CategoriesScreen() {
   };
 
   const handleDelete = (id, catName) => {
-    Alert.alert('Удалить категорию?', `"${catName}" будет удалена. Операции останутся без категории.`, [
-      { text: 'Отмена', style: 'cancel' },
-      { text: 'Удалить', style: 'destructive', onPress: async () => {
+    Alert.alert(t('delete_cat_title'), `"${catName}" ${t('delete_cat_confirm')}`, [
+      { text: t('cancel'), style: 'cancel' },
+      { text: t('delete'), style: 'destructive', onPress: async () => {
         await deleteCategory(id);
         load();
       }},
@@ -79,7 +81,7 @@ export default function CategoriesScreen() {
     <View style={s.container}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.bg} />
       <View style={s.header}>
-        <Text style={s.title}>Категории</Text>
+        <Text style={s.title}>{t('categories')}</Text>
         <TouchableOpacity style={s.addBtn} onPress={openAdd} activeOpacity={0.8}>
           <Ionicons name="add" size={22} color={Colors.white} />
         </TouchableOpacity>
@@ -90,13 +92,13 @@ export default function CategoriesScreen() {
           style={[s.tab, tab === 'expense' && { backgroundColor: Colors.expense }]}
           onPress={() => setTab('expense')}
         >
-          <Text style={[s.tabTxt, tab === 'expense' && { color: '#fff' }]}>Расходы</Text>
+          <Text style={[s.tabTxt, tab === 'expense' && { color: '#fff' }]}>{t('expense')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[s.tab, tab === 'income' && { backgroundColor: Colors.income }]}
           onPress={() => setTab('income')}
         >
-          <Text style={[s.tabTxt, tab === 'income' && { color: '#fff' }]}>Доходы</Text>
+          <Text style={[s.tabTxt, tab === 'income' && { color: '#fff' }]}>{t('income')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -123,8 +125,8 @@ export default function CategoriesScreen() {
             <View style={s.emptyIcon}>
               <Ionicons name="grid-outline" size={32} color={Colors.primary} />
             </View>
-            <Text style={s.emptyTitle}>Нет категорий</Text>
-            <Text style={s.emptyText}>Нажмите + чтобы добавить</Text>
+            <Text style={s.emptyTitle}>{t('no_cats')}</Text>
+            <Text style={s.emptyText}>{t('tap_plus_to_add')}</Text>
           </View>
         }
       />
@@ -133,7 +135,7 @@ export default function CategoriesScreen() {
         <View style={s.overlay}>
           <View style={s.modal}>
             <View style={s.modalHeader}>
-              <Text style={s.modalTitle}>{editingId ? 'Изменить категорию' : 'Новая категория'}</Text>
+              <Text style={s.modalTitle}>{editingId ? t('edit_category') : t('new_category')}</Text>
               <TouchableOpacity onPress={() => setShowModal(false)}>
                 <Ionicons name="close" size={24} color={Colors.text} />
               </TouchableOpacity>
@@ -143,7 +145,7 @@ export default function CategoriesScreen() {
               style={s.input}
               value={name}
               onChangeText={setName}
-              placeholder="Название категории"
+              placeholder={t('category_name')}
               placeholderTextColor={Colors.textMuted}
               autoFocus
             />
@@ -156,7 +158,7 @@ export default function CategoriesScreen() {
               <Text style={[s.previewName, { color }]}>{name || 'Название'}</Text>
             </View>
 
-            <Text style={s.subLabel}>Цвет</Text>
+            <Text style={s.subLabel}>{t('color')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
               <View style={s.colorRow}>
                 {PALETTE.map(c => (
@@ -169,7 +171,7 @@ export default function CategoriesScreen() {
               </View>
             </ScrollView>
 
-            <Text style={s.subLabel}>Иконка</Text>
+            <Text style={s.subLabel}>{t('icon')}</Text>
             <View style={s.iconGrid}>
               {ICONS.map(ic => (
                 <TouchableOpacity
@@ -184,10 +186,10 @@ export default function CategoriesScreen() {
 
             <View style={s.modalBtns}>
               <TouchableOpacity style={s.cancelBtn} onPress={() => setShowModal(false)}>
-                <Text style={s.cancelTxt}>Отмена</Text>
+                <Text style={s.cancelTxt}>{t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.confirmBtn} onPress={handleSave}>
-                <Text style={s.confirmTxt}>{editingId ? 'Сохранить' : 'Добавить'}</Text>
+                <Text style={s.confirmTxt}>{editingId ? t('save') : t('add')}</Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -6,15 +6,16 @@ import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getInsights, getMonthlyTrend } from '../database/db';
-import { MONTH_NAMES } from '../utils/format';
 import { Colors } from '../theme/colors';
 import { useCurrency } from '../context/CurrencyContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CHART_H = 80;
 
 export default function BalanceScreen() {
   const { currency, fmt, fmtC } = useCurrency();
+  const { t } = useLanguage();
   const [data, setData]         = useState(null);
   const [trend, setTrend]       = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -58,7 +59,7 @@ export default function BalanceScreen() {
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           style={s.hero}
         >
-          <Text style={s.heroLabel}>Общий баланс</Text>
+          <Text style={s.heroLabel}>{t('total_balance')}</Text>
           <Text style={s.heroBalance} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.4}>
             {fmt(balance)}
           </Text>
@@ -74,7 +75,7 @@ export default function BalanceScreen() {
             {savings !== 0 && (
               <View style={[s.heroPill, { backgroundColor: 'rgba(255,255,255,0.25)' }]}>
                 <Ionicons name="trending-up" size={11} color="#fff" />
-                <Text style={s.heroPillTxt}>{savings}% сберегает</Text>
+                <Text style={s.heroPillTxt}>{savings}{t('pct_saves')}</Text>
               </View>
             )}
           </View>
@@ -83,12 +84,13 @@ export default function BalanceScreen() {
         {/* ── Monthly trend chart ── */}
         {trend.length > 1 && (
           <View style={s.card}>
-            <Text style={s.cardTitle}>Тренд за 6 месяцев</Text>
+            <Text style={s.cardTitle}>{t('trend_6m')}</Text>
             <View style={s.trendChart}>
-              {trend.map((t, i) => {
-                const incH = Math.max((t.income  / maxTrend) * CHART_H, 2);
-                const expH = Math.max((t.expense / maxTrend) * CHART_H, 2);
-                const label = t.month ? MONTH_NAMES[parseInt(t.month.split('-')[1]) - 1] : '';
+              {trend.map((row, i) => {
+                const incH = Math.max((row.income  / maxTrend) * CHART_H, 2);
+                const expH = Math.max((row.expense / maxTrend) * CHART_H, 2);
+                const monthsShort = t('monthsShort');
+                const label = row.month ? monthsShort[parseInt(row.month.split('-')[1]) - 1] : '';
                 return (
                   <View key={i} style={s.trendCol}>
                     <View style={s.trendBars}>
@@ -101,8 +103,8 @@ export default function BalanceScreen() {
               })}
             </View>
             <View style={s.trendLegend}>
-              <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.income  }]} /><Text style={s.legTxt}>Доходы</Text></View>
-              <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.expense }]} /><Text style={s.legTxt}>Расходы</Text></View>
+              <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.income  }]} /><Text style={s.legTxt}>{t('income')}</Text></View>
+              <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.expense }]} /><Text style={s.legTxt}>{t('expense')}</Text></View>
             </View>
           </View>
         )}
@@ -113,39 +115,39 @@ export default function BalanceScreen() {
             icon="flame"
             iconColor="#FF9F43"
             iconBg="#FFF4E6"
-            label="В день (ср.)"
+            label={t('per_day')}
             value={fmtC(dailyAvg)}
-            sub="расходы"
+            sub={t('daily_expenses')}
           />
           <StatCard
             icon="calendar"
             iconColor={Colors.primary}
             iconBg={Colors.primaryLight}
-            label="Прогноз/месяц"
+            label={t('forecast_month')}
             value={fmtC(projected)}
-            sub={`за ${daysInMonth} дней`}
+            sub={`${daysInMonth} ${t('days_short')}`}
           />
           <StatCard
             icon="timer-outline"
             iconColor={runway !== null && runway > 30 ? Colors.income : Colors.expense}
             iconBg={runway !== null && runway > 30 ? Colors.incomeLight : Colors.expenseLight}
-            label="Хватит на"
-            value={runway !== null ? `${runway} дн.` : '∞'}
-            sub="при текущих расходах"
+            label={t('enough_days')}
+            value={runway !== null ? `${runway} ${t('days_short')}` : '∞'}
+            sub={t('at_cur_exp')}
           />
           <StatCard
             icon="save-outline"
             iconColor={savings >= 0 ? Colors.income : Colors.expense}
             iconBg={savings >= 0 ? Colors.incomeLight : Colors.expenseLight}
-            label="Норма сбережений"
+            label={t('savings_rate')}
             value={`${savings}%`}
-            sub="этот месяц"
+            sub={t('this_month')}
           />
         </View>
 
         {/* ── Month progress ── */}
         <View style={s.card}>
-          <Text style={s.cardTitle}>Месяц: день {daysPassed} из {daysInMonth}</Text>
+          <Text style={s.cardTitle}>{t('month')}: {daysPassed} / {daysInMonth}</Text>
           <View style={s.progressBg}>
             <View style={[s.progressFill, {
               width: `${Math.min((daysPassed / daysInMonth) * 100, 100)}%`,
@@ -154,11 +156,11 @@ export default function BalanceScreen() {
           </View>
           <View style={s.progressRow}>
             <View>
-              <Text style={s.progressLbl}>Потрачено</Text>
+              <Text style={s.progressLbl}>{t('spent')}</Text>
               <Text style={[s.progressVal, { color: Colors.expense }]}>{fmtC(curExpense)}</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={s.progressLbl}>Прогноз к концу</Text>
+              <Text style={s.progressLbl}>{t('end_forecast')}</Text>
               <Text style={[s.progressVal, { color: Colors.primary }]}>{fmtC(projected)}</Text>
             </View>
           </View>
@@ -166,7 +168,7 @@ export default function BalanceScreen() {
 
         {/* ── Smart insights ── */}
         <View style={[s.card, { marginBottom: 8 }]}>
-          <Text style={s.cardTitle}>Умные подсказки</Text>
+          <Text style={s.cardTitle}>{t('smart_tips')}</Text>
           <View style={s.insightsList}>
             {insights.map((tip, i) => (
               <View key={i} style={[s.insightRow, i === insights.length - 1 && { borderBottomWidth: 0 }]}>

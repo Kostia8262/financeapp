@@ -81,16 +81,16 @@ export default function SettingsScreen() {
     <View style={s.container}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.bg} />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={s.title}>Настройки</Text>
+        <Text style={s.title}>{t('settings')}</Text>
 
         {/* Currency section */}
-        <Text style={s.sectionLabel}>Валюта счёта</Text>
+        <Text style={s.sectionLabel}>{t('currency_account')}</Text>
         <View style={s.currencyCard}>
           <View style={s.activeCurrencyRow}>
             <Text style={s.activeCurrencyFlag}>{currency.flag}</Text>
             <View style={{ flex: 1 }}>
               <Text style={s.activeCurrencyName}>{currency.name}</Text>
-              <Text style={s.activeCurrencyHint}>Активная валюта — все операции записываются в ней</Text>
+              <Text style={s.activeCurrencyHint}>{t('active_currency')}</Text>
             </View>
             <View style={s.activeCurrencyBadge}>
               <Text style={s.activeCurrencyCode}>{currency.symbol} {currency.code}</Text>
@@ -146,21 +146,21 @@ export default function SettingsScreen() {
         </View>
 
         {/* About */}
-        <Text style={s.sectionLabel}>О приложении</Text>
+        <Text style={s.sectionLabel}>{t('about_app')}</Text>
         <View style={s.card}>
           <View style={s.aboutContent}>
             <LinearGradient colors={['#6C47FF', '#9B6BFF']} style={s.appIconWrap}>
               <Ionicons name="wallet" size={28} color="#fff" />
             </LinearGradient>
             <View>
-              <Text style={s.appName}>Учет Финансов</Text>
-              <Text style={s.appVersion}>Версия 1.0.0</Text>
+              <Text style={s.appName}>Finance Tracker</Text>
+              <Text style={s.appVersion}>{t('app_version')}</Text>
             </View>
           </View>
           <View style={s.divider} />
           <View style={s.offlineRow}>
             <Ionicons name="shield-checkmark-outline" size={18} color={Colors.income} />
-            <Text style={s.offlineText}>Данные хранятся только на устройстве. Интернет не используется.</Text>
+            <Text style={s.offlineText}>{t('offline_notice')}</Text>
           </View>
         </View>
       </ScrollView>
