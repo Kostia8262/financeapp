@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Учет Финансов",
+    "slug": "finance-tracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "com.financetracker.app",
+      "permissions": [
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "scheme": "finance-tracker",
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
