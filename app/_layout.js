@@ -62,7 +62,7 @@ export default function RootLayout() {
               <View style={d.iconWrap}>
                 <Text style={d.icon}>🚀</Text>
               </View>
-              <Text style={d.title}>Доступно обновление</Text>
+              <Text style={d.title}>Доступно обновление ✨</Text>
               <Text style={d.body}>
                 Новая версия готова к установке. Обновление займёт несколько секунд.
               </Text>
