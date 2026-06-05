@@ -1,13 +1,16 @@
 import * as SQLite from 'expo-sqlite';
 
-let db;
+let dbPromise = null;
 
-export async function getDatabase() {
-  if (!db) {
-    db = await SQLite.openDatabaseAsync('finance.db');
-    await initDatabase(db);
+export function getDatabase() {
+  if (!dbPromise) {
+    dbPromise = (async () => {
+      const database = await SQLite.openDatabaseAsync('finance.db');
+      await initDatabase(database);
+      return database;
+    })();
   }
-  return db;
+  return dbPromise;
 }
 
 async function initDatabase(db) {
@@ -51,6 +54,13 @@ async function initDatabase(db) {
     await db.execAsync('DELETE FROM categories');
     await seedDefaultCategories(db);
     await db.runAsync("INSERT OR REPLACE INTO settings (key, value) VALUES ('categories_version', '2')");
+  } else {
+    // Remove any accidental duplicates that slipped in from previous race-condition bug
+    await db.execAsync(`
+      DELETE FROM categories WHERE id NOT IN (
+        SELECT MIN(id) FROM categories GROUP BY name, type
+      )
+    `);
   }
 }
 
