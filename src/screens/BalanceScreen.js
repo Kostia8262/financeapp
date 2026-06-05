@@ -59,25 +59,21 @@ export default function BalanceScreen() {
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           style={s.hero}
         >
-          <Text style={s.heroLabel}>{t('total_balance')}</Text>
-          <Text style={s.heroBalance} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.4}>
-            {fmt(balance)}
-          </Text>
-          <View style={s.heroRow}>
-            <View style={s.heroPill}>
-              <Ionicons name="arrow-down" size={11} color="#fff" />
-              <Text style={s.heroPillTxt}>{fmtC(curIncome)}</Text>
+          <View style={s.heroTop}>
+            <View style={{ flex: 1 }}>
+              <Text style={s.heroLabel}>{t('total_balance')}</Text>
+              <Text style={s.heroBalance} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.4}>
+                {fmt(balance)}
+              </Text>
+              <Text style={s.heroSub}>{t('this_month')}</Text>
             </View>
-            <View style={[s.heroPill, { backgroundColor: 'rgba(0,0,0,0.15)' }]}>
-              <Ionicons name="arrow-up" size={11} color="#fff" />
-              <Text style={s.heroPillTxt}>{fmtC(curExpense)}</Text>
-            </View>
-            {savings !== 0 && (
-              <View style={[s.heroPill, { backgroundColor: 'rgba(255,255,255,0.25)' }]}>
-                <Ionicons name="trending-up" size={11} color="#fff" />
-                <Text style={s.heroPillTxt}>{savings}{t('pct_saves')}</Text>
-              </View>
-            )}
+          </View>
+          <View style={s.heroStats}>
+            <HeroStat icon="arrow-up"    iconBg="rgba(0,196,140,0.25)"  iconColor="#A8FFE0" label={t('income')}       value={fmtC(curIncome)}  />
+            <View style={s.heroDivider} />
+            <HeroStat icon="arrow-down"  iconBg="rgba(255,90,95,0.25)"  iconColor="#FFB3B5" label={t('expense')}      value={fmtC(curExpense)} />
+            <View style={s.heroDivider} />
+            <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor="#fff"    label={t('savings_rate')} value={`${savings}%`}   />
           </View>
         </LinearGradient>
 
@@ -268,6 +264,20 @@ function buildInsights(d, fmtC) {
 
 // ─── Sub-components ───────────────────────────────────────────
 
+function HeroStat({ icon, iconBg, iconColor, label, value }) {
+  return (
+    <View style={s.heroStat}>
+      <View style={[s.heroStatIcon, { backgroundColor: iconBg }]}>
+        <Ionicons name={icon} size={14} color={iconColor} />
+      </View>
+      <View style={{ flex: 1 }}>
+        <Text style={s.heroStatLabel}>{label}</Text>
+        <Text style={s.heroStatValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>{value}</Text>
+      </View>
+    </View>
+  );
+}
+
 function StatCard({ icon, iconColor, iconBg, label, value, sub }) {
   return (
     <View style={s.statCard}>
@@ -289,18 +299,23 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 
   hero: {
-    paddingTop: 60, paddingBottom: 28, paddingHorizontal: 20,
+    paddingTop: 56, paddingBottom: 24, paddingHorizontal: 20,
     borderBottomLeftRadius: 32, borderBottomRightRadius: 32, marginBottom: 16,
   },
-  heroLabel: { fontSize: 13, color: 'rgba(255,255,255,0.75)', fontWeight: '600', marginBottom: 6 },
-  heroBalance: { fontSize: 44, fontWeight: '800', color: '#fff', letterSpacing: -1, marginBottom: 16 },
-  heroRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
-  heroPill: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20,
+  heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
+  heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', marginBottom: 4 },
+  heroBalance: { fontSize: 42, fontWeight: '800', color: '#fff', letterSpacing: -1 },
+  heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
+  heroStats: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    borderRadius: 18, padding: 14,
   },
-  heroPillTxt: { fontSize: 11, color: '#fff', fontWeight: '700' },
+  heroStat: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, overflow: 'hidden' },
+  heroStatIcon: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  heroStatLabel: { fontSize: 10, color: 'rgba(255,255,255,0.65)', fontWeight: '500' },
+  heroStatValue: { fontSize: 13, color: '#fff', fontWeight: '700' },
+  heroDivider: { width: 1, height: 32, backgroundColor: 'rgba(255,255,255,0.18)', marginHorizontal: 4 },
 
   card: {
     marginHorizontal: 16, marginBottom: 12,
