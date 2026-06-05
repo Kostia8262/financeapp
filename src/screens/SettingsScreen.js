@@ -5,6 +5,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Updates from 'expo-updates';
+import Constants from 'expo-constants';
 import { exportToCSV } from '../utils/export';
 import { pickAndParseCSV, importRows } from '../utils/import';
 import { clearAllTransactions } from '../database/db';
@@ -13,9 +15,21 @@ import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import { CURRENCIES } from '../utils/currencies';
 
+function useAppVersion(locale) {
+  const base = Constants.expoConfig?.version ?? '1.0.0';
+  if (!Updates.isEnabled || Updates.isEmbeddedLaunch || !Updates.createdAt) {
+    return `v${base}`;
+  }
+  const d = new Date(Updates.createdAt);
+  const date = d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+  const time = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  return `v${base} · OTA ${date}, ${time}`;
+}
+
 export default function SettingsScreen() {
   const { currency, setCurrency } = useCurrency();
   const { lang, setLang, LANGUAGES, t } = useLanguage();
+  const appVersion = useAppVersion(t('locale'));
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [clearing, setClearing]   = useState(false);
@@ -154,7 +168,7 @@ export default function SettingsScreen() {
             </LinearGradient>
             <View>
               <Text style={s.appName}>Finance Tracker</Text>
-              <Text style={s.appVersion}>{t('app_version')}</Text>
+              <Text style={s.appVersion}>{appVersion}</Text>
             </View>
           </View>
           <View style={s.divider} />
