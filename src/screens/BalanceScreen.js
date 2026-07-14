@@ -59,7 +59,6 @@ export default function BalanceScreen() {
         {/* ── Hero balance ── */}
         <GradientHero
           colors={balance >= 0 ? ['#00C48C', '#00A876', '#009E6E'] : ['#FF5A5F', '#E83E44', '#CC2D32']}
-          style={{ marginBottom: Spacing.lg }}
         >
           <View style={s.heroTop}>
             <View style={{ flex: 1 }}>
@@ -78,6 +77,8 @@ export default function BalanceScreen() {
             <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor="#fff"    label={t('savings_rate')} value={`${savings}%`}   />
           </View>
         </GradientHero>
+
+        <View style={{ height: Spacing.lg }} />
 
         {/* ── Monthly trend chart ── */}
         {trend.length > 1 && (
@@ -268,7 +269,7 @@ function buildInsights(d, fmtC) {
 
 function StatCard({ icon, iconColor, iconBg, label, value, sub }) {
   return (
-    <Card style={s.statCard} padding={16} radius={18}>
+    <Card style={s.statCard} padding={16}>
       <View style={[s.statIcon, { backgroundColor: iconBg }]}>
         <Ionicons name={icon} size={20} color={iconColor} />
       </View>

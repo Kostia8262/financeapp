@@ -7,6 +7,7 @@ import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { getCategories, addCategory, updateCategory, deleteCategory } from '../database/db';
 import { Colors } from '../theme/colors';
+import { Typography } from '../theme/typography';
 import { useLanguage } from '../context/LanguageContext';
 import Card from '../components/ui/Card';
 import EmptyState from '../components/ui/EmptyState';
@@ -198,7 +199,7 @@ export default function CategoriesScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 12 },
-  title: { fontSize: 28, fontWeight: '800', color: Colors.text, letterSpacing: -0.5 },
+  title: { ...Typography.h1 },
   addBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
 
   tabWrap: { flexDirection: 'row', marginHorizontal: 16, backgroundColor: Colors.bgCard, borderRadius: 14, padding: 4, marginBottom: 4, borderWidth: 1, borderColor: Colors.border },

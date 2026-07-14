@@ -5,6 +5,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../theme/colors';
+import { Typography } from '../theme/typography';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import { CURRENCIES } from '../utils/currencies';
@@ -109,8 +110,8 @@ export default function SettingsScreen() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  title: { fontSize: 28, fontWeight: '800', color: Colors.text, paddingHorizontal: 20, paddingTop: 56, marginBottom: 20, letterSpacing: -0.5 },
-  sectionLabel: { fontSize: 12, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.8, marginHorizontal: 20, marginBottom: 10 },
+  title: { ...Typography.h1, paddingHorizontal: 20, paddingTop: 56, marginBottom: 20 },
+  sectionLabel: { ...Typography.sectionLabel, marginHorizontal: 20, marginBottom: 10 },
 
   // Currency picker
   currencyCard: { marginHorizontal: 16, marginBottom: 20 },

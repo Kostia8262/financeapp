@@ -9,6 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { getTransactions, deleteTransaction } from '../database/db';
 import { formatDate } from '../utils/format';
 import { Colors } from '../theme/colors';
+import { Typography } from '../theme/typography';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import Card from '../components/ui/Card';
@@ -182,7 +183,7 @@ function LinearGradientInline() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 12 },
-  title: { fontSize: 28, fontWeight: '800', color: Colors.text, letterSpacing: -0.5 },
+  title: { ...Typography.h1 },
   currBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
   currBadgeTxt: { fontSize: 11, fontWeight: '700' },
   addBtn: { borderRadius: 20, overflow: 'hidden' },

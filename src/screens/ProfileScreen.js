@@ -158,6 +158,8 @@ export default function ProfileScreen({ navigation }) {
           <Text style={s.userSub}>FinanceApp {appVersion}</Text>
         </GradientHero>
 
+        <View style={{ height: 16 }} />
+
         {/* ── Резервное копирование ── */}
         <SectionCard
           title={t('backup')}
@@ -394,8 +396,7 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 
   hero: {
-    paddingTop: 60, paddingBottom: 32,
-    alignItems: 'center', marginBottom: 16,
+    alignItems: 'center',
   },
   backBtn: {
     position: 'absolute', top: 56, left: 16,
