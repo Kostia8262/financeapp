@@ -222,7 +222,7 @@ const s = StyleSheet.create({
   dayCircle: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   dayCircleSel: { backgroundColor: Colors.primary },
   dayTxt: { fontSize: 14, fontWeight: '500', color: Colors.text },
-  dayTxtSel: { color: '#fff', fontWeight: '700' },
+  dayTxtSel: { color: Colors.white, fontWeight: '700' },
   dayTxtToday: { color: Colors.primary, fontWeight: '700' },
   todayDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.primary, position: 'absolute', bottom: 3 },
 
@@ -230,5 +230,5 @@ const s = StyleSheet.create({
   cancelBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: Colors.bgMuted },
   cancelTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
   applyBtn: { flex: 2, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: Colors.primary },
-  applyTxt: { fontSize: 15, fontWeight: '700', color: '#fff' },
+  applyTxt: { fontSize: 15, fontWeight: '700', color: Colors.white },
 });

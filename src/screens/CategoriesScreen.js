@@ -97,13 +97,13 @@ export default function CategoriesScreen() {
           style={[s.tab, tab === 'expense' && { backgroundColor: Colors.expense }]}
           onPress={() => setTab('expense')}
         >
-          <Text style={[s.tabTxt, tab === 'expense' && { color: '#fff' }]}>{t('expense')}</Text>
+          <Text style={[s.tabTxt, tab === 'expense' && { color: Colors.white }]}>{t('expense')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[s.tab, tab === 'income' && { backgroundColor: Colors.income }]}
           onPress={() => setTab('income')}
         >
-          <Text style={[s.tabTxt, tab === 'income' && { color: '#fff' }]}>{t('income')}</Text>
+          <Text style={[s.tabTxt, tab === 'income' && { color: Colors.white }]}>{t('income')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -237,5 +237,5 @@ const s = StyleSheet.create({
   cancelBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.bgMuted },
   cancelTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
   confirmBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.primary },
-  confirmTxt: { fontSize: 15, fontWeight: '700', color: '#fff' },
+  confirmTxt: { fontSize: 15, fontWeight: '700', color: Colors.white },
 });

@@ -91,8 +91,8 @@ export default function SettingsScreen() {
         <Text style={s.sectionLabel}>{t('about_app')}</Text>
         <Card style={s.card}>
           <View style={s.aboutContent}>
-            <LinearGradient colors={['#6C47FF', '#9B6BFF']} style={s.appIconWrap}>
-              <Ionicons name="wallet" size={28} color="#fff" />
+            <LinearGradient colors={[Colors.primary, '#9B6BFF']} style={s.appIconWrap}>
+              <Ionicons name="wallet" size={28} color={Colors.white} />
             </LinearGradient>
             <View>
               <Text style={s.appName}>Finance Tracker</Text>
@@ -122,7 +122,7 @@ const s = StyleSheet.create({
   activeCurrencyName: { fontSize: 15, fontWeight: '700', color: Colors.text },
   activeCurrencyHint: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
   activeCurrencyBadge: { backgroundColor: Colors.primary, borderRadius: Radius.sm, paddingHorizontal: 10, paddingVertical: 5 },
-  activeCurrencyCode: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  activeCurrencyCode: { color: Colors.white, fontSize: 13, fontWeight: '800' },
   currencyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   currencyPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: 12, backgroundColor: Colors.bgInput, borderWidth: 1.5, borderColor: 'transparent' },
   currencyPillActive: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },

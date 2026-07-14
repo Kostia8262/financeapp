@@ -176,8 +176,8 @@ export default function TransactionsScreen({ navigation }) {
 
 function LinearGradientInline() {
   return (
-    <LinearGradient colors={['#6C47FF', '#9B6BFF']} style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}>
-      <Ionicons name="add" size={22} color="#fff" />
+    <LinearGradient colors={[Colors.primary, '#9B6BFF']} style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}>
+      <Ionicons name="add" size={22} color={Colors.white} />
     </LinearGradient>
   );
 }

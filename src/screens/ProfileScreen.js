@@ -152,7 +152,7 @@ export default function ProfileScreen({ navigation }) {
         {/* ── Header ── */}
         <GradientHero style={s.hero}>
           <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()}>
-            <Ionicons name="chevron-back" size={22} color="#fff" />
+            <Ionicons name="chevron-back" size={22} color={Colors.white} />
           </TouchableOpacity>
           <View style={s.avatar}>
             <Ionicons name="person" size={36} color={Colors.primary} />
@@ -221,7 +221,7 @@ export default function ProfileScreen({ navigation }) {
         <SectionCard
           title={t('rate_us')}
           icon="star"
-          color="#FF9F43"
+          color={Colors.warning}
           expanded={section === 'rate'}
           onToggle={() => setSection(section === 'rate' ? null : 'rate')}
         >
@@ -229,7 +229,7 @@ export default function ProfileScreen({ navigation }) {
             <Text style={s.rateText}>{t('rate_text')}</Text>
             <View style={s.starsRow}>
               {[1,2,3,4,5].map(i => (
-                <Ionicons key={i} name="star" size={32} color="#FF9F43" />
+                <Ionicons key={i} name="star" size={32} color={Colors.warning} />
               ))}
             </View>
             <TouchableOpacity
@@ -245,7 +245,7 @@ export default function ProfileScreen({ navigation }) {
         <SectionCard
           title={t('support')}
           icon="headset"
-          color="#00C48C"
+          color={Colors.income}
           expanded={section === 'support'}
           onToggle={() => setSection(section === 'support' ? null : 'support')}
         >
@@ -324,7 +324,7 @@ export default function ProfileScreen({ navigation }) {
                 <Text style={s.cancelTxt}>{t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.confirmBtn} onPress={handleConfirmImport} disabled={importing}>
-                {importing ? <ActivityIndicator color="#fff" /> : <Text style={s.confirmTxt}>{t('import_btn')}</Text>}
+                {importing ? <ActivityIndicator color={Colors.white} /> : <Text style={s.confirmTxt}>{t('import_btn')}</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -409,10 +409,10 @@ const s = StyleSheet.create({
   },
   avatar: {
     width: 80, height: 80, borderRadius: 40,
-    backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.white, alignItems: 'center', justifyContent: 'center',
     marginBottom: 12,
   },
-  userName: { fontSize: 22, fontWeight: '800', color: '#fff', marginBottom: 4 },
+  userName: { fontSize: 22, fontWeight: '800', color: Colors.white, marginBottom: 4 },
   userSub:  { fontSize: 13, color: 'rgba(255,255,255,0.7)' },
 
   sectionCard: {
@@ -442,8 +442,8 @@ const s = StyleSheet.create({
   rateBlock: { alignItems: 'center', gap: 14 },
   rateText: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20 },
   starsRow: { flexDirection: 'row', gap: 6 },
-  rateBtn: { backgroundColor: '#FF9F43', borderRadius: 12, paddingHorizontal: Spacing.xxl, paddingVertical: Spacing.md },
-  rateBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  rateBtn: { backgroundColor: Colors.warning, borderRadius: 12, paddingHorizontal: Spacing.xxl, paddingVertical: Spacing.md },
+  rateBtnTxt: { color: Colors.white, fontSize: 14, fontWeight: '700' },
 
   supportBlock: { gap: 4 },
   supportRow: {
@@ -485,5 +485,5 @@ const s = StyleSheet.create({
   cancelBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.bgMuted },
   cancelTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
   confirmBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.primary },
-  confirmTxt: { fontSize: 15, fontWeight: '700', color: '#fff' },
+  confirmTxt: { fontSize: 15, fontWeight: '700', color: Colors.white },
 });

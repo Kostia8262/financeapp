@@ -178,9 +178,9 @@ export default function ReportsScreen() {
             </View>
           </View>
           <View style={s.heroStats}>
-            <HeroStat icon="arrow-up"   iconBg="rgba(0,196,140,0.25)" iconColor="#00E6A8" label={t('income')}  value={fmtC(totals.income)}  />
+            <HeroStat icon="arrow-up"   iconBg={Colors.income + '40'} iconColor="#00E6A8" label={t('income')}  value={fmtC(totals.income)}  />
             <View style={s.heroDivider} />
-            <HeroStat icon="arrow-down" iconBg="rgba(255,90,95,0.25)" iconColor="#FF8A8E" label={t('expense')} value={fmtC(totals.expense)} />
+            <HeroStat icon="arrow-down" iconBg={Colors.expense + '40'} iconColor="#FF8A8E" label={t('expense')} value={fmtC(totals.expense)} />
           </View>
         </GradientHero>
 
@@ -351,7 +351,7 @@ function AnalyticsPeriodSheet({ period, anchor, months, locale, onSelect, onClos
               activeOpacity={0.75}
             >
               <View style={[ps.iconBox, active && ps.iconBoxActive]}>
-                <Text style={[ps.badgeTxt, active && { color: '#fff' }]}>{opt.badge}</Text>
+                <Text style={[ps.badgeTxt, active && { color: Colors.white }]}>{opt.badge}</Text>
               </View>
               <Text style={[ps.optLabel, active && ps.optLabelActive]}>{opt.label}</Text>
               {opt.sub ? <Text style={[ps.optSub, active && ps.optSubActive]} numberOfLines={1}>{opt.sub}</Text> : null}
@@ -372,8 +372,8 @@ function ToggleCard({ label, value, color, lightBg, active, onPress }) {
       style={[s.toggleCard, active ? { backgroundColor: color } : { backgroundColor: lightBg }]}
       onPress={onPress} activeOpacity={0.85}
     >
-      <Text style={[s.toggleLabel, { color: active ? '#fff' : color }]}>{label}</Text>
-      <Text style={[s.toggleAmt, { color: active ? '#fff' : color }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>
+      <Text style={[s.toggleLabel, { color: active ? Colors.white : color }]}>{label}</Text>
+      <Text style={[s.toggleAmt, { color: active ? Colors.white : color }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>
         {fmtC(value)}
       </Text>
       {active && (
@@ -406,7 +406,7 @@ const s = StyleSheet.create({
   heroLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', flex: 1 },
   currencyBadge: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: Spacing.sm, paddingVertical: 3, borderRadius: Radius.sm },
-  currencyBadgeTxt: { fontSize: 11, color: '#fff', fontWeight: '700' },
+  currencyBadgeTxt: { fontSize: 11, color: Colors.white, fontWeight: '700' },
   heroBalance: { ...Typography.heroBalance },
   heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
   heroStats: {
@@ -520,10 +520,10 @@ const ps = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 4, borderWidth: 1.5, borderColor: Colors.border,
   },
-  iconBoxActive: { backgroundColor: '#6C47FF', borderColor: '#6C47FF' },
+  iconBoxActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   badgeTxt:       { fontSize: 13, fontWeight: '800', color: Colors.text },
   optLabel:       { fontSize: 14, fontWeight: '700', color: Colors.text },
-  optLabelActive: { color: '#fff' },
+  optLabelActive: { color: Colors.white },
   optSub:         { fontSize: 11, color: Colors.textMuted },
   optSubActive:   { color: 'rgba(255,255,255,0.65)' },
 });

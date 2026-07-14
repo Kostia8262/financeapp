@@ -140,7 +140,7 @@ export default function AddTransactionScreen({ navigation, route }) {
   // ── Colors ────────────────────────────────────────────────────
   const typeColor = type === 'income' ? Colors.income : Colors.primary;
   const typeGradient = type === 'income'
-    ? ['#00C48C', '#00E6A8']
+    ? [Colors.income, '#00E6A8']
     : ['#6C47FF', '#9B6BFF'];
   const catColor = selectedCat?.color || Colors.income;
   const catGradient = [catColor, catColor + 'BB'];
@@ -260,7 +260,7 @@ export default function AddTransactionScreen({ navigation, route }) {
           {/* Confirm — tall button */}
           <TouchableOpacity style={s.confirmBtn} onPress={pressConfirm} activeOpacity={0.85}>
             <LinearGradient colors={[Colors.income, '#00E6A8']} style={s.confirmGrad}>
-              <Ionicons name="checkmark" size={34} color="#fff" />
+              <Ionicons name="checkmark" size={34} color={Colors.white} />
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -347,7 +347,7 @@ const s = StyleSheet.create({
   headerGrad: { flex: 1, paddingTop: 44, paddingHorizontal: 16, paddingBottom: 14, justifyContent: 'flex-end' },
   headerBack: { position: 'absolute', top: 44, left: 14 },
   headerSub: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 },
-  headerMain: { fontSize: 22, fontWeight: '800', color: '#fff' },
+  headerMain: { fontSize: 22, fontWeight: '800', color: Colors.white },
   headerHint: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
   headerHintTxt: { fontSize: 10, color: 'rgba(255,255,255,0.6)' },
 

@@ -309,11 +309,11 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           <View style={s.heroStats}>
-            <HeroStat icon="arrow-up"    iconBg="rgba(0,196,140,0.25)"  iconColor="#00E6A8" label={t('income')}   value={fmtC(monthly.income)} />
+            <HeroStat icon="arrow-up"    iconBg={Colors.income + '40'}  iconColor="#00E6A8" label={t('income')}   value={fmtC(monthly.income)} />
             <View style={s.heroDivider} />
-            <HeroStat icon="arrow-down"  iconBg="rgba(255,90,95,0.25)"  iconColor="#FF8A8E" label={t('expense')}  value={fmtC(monthly.expense)} />
+            <HeroStat icon="arrow-down"  iconBg={Colors.expense + '40'}  iconColor="#FF8A8E" label={t('expense')}  value={fmtC(monthly.expense)} />
             <View style={s.heroDivider} />
-            <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor="#fff"    label={t('surplus')}  value={`${savingsRate}%`} />
+            <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor={Colors.white}    label={t('surplus')}  value={`${savingsRate}%`} />
           </View>
         </GradientHero>
 
@@ -511,7 +511,7 @@ function PeriodSheet({ periodType, anchorDate, customFrom, customTo, onSelect, o
         activeOpacity={0.75}
       >
         <View style={[ps.iconBox, isActive('range') && ps.iconBoxActive]}>
-          <Ionicons name="ellipsis-horizontal" size={18} color={isActive('range') ? '#fff' : Colors.text} />
+          <Ionicons name="ellipsis-horizontal" size={18} color={isActive('range') ? Colors.white : Colors.text} />
         </View>
         <View>
           <Text style={[ps.optLabel, isActive('range') && ps.optLabelActive]}>{t('choose_range')}</Text>
@@ -540,8 +540,8 @@ function PeriodOption({ badge, icon, label, sub, type, active, onPress }) {
     >
       <View style={[ps.iconBox, active && ps.iconBoxActive]}>
         {icon
-          ? <Ionicons name={icon} size={16} color={active ? '#fff' : Colors.text} />
-          : <Text style={[ps.badgeTxt, active && { color: '#fff' }]}>{badge}</Text>
+          ? <Ionicons name={icon} size={16} color={active ? Colors.white : Colors.text} />
+          : <Text style={[ps.badgeTxt, active && { color: Colors.white }]}>{badge}</Text>
         }
       </View>
       <Text style={[ps.optLabel, active && ps.optLabelActive]}>{label}</Text>
@@ -601,8 +601,8 @@ const s = StyleSheet.create({
   heroLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', flex: 1 },
   currencyBadge: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: Spacing.sm, paddingVertical: 3, borderRadius: Radius.sm },
-  currencyBadgeTxt: { fontSize: 11, color: '#fff', fontWeight: '700' },
-  heroBalance: { ...Typography.heroBalance, color: '#fff' },
+  currencyBadgeTxt: { fontSize: 11, color: Colors.white, fontWeight: '700' },
+  heroBalance: { ...Typography.heroBalance, color: Colors.white },
   heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
   profileBtn: {
     width: 42, height: 42, borderRadius: 21,
@@ -707,10 +707,10 @@ const ps = StyleSheet.create({
     marginBottom: 4,
     borderWidth: 1.5, borderColor: Colors.border,
   },
-  iconBoxActive: { backgroundColor: '#6C47FF', borderColor: '#6C47FF' },
+  iconBoxActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   badgeTxt: { fontSize: 13, fontWeight: '800', color: Colors.text },
   optLabel: { fontSize: 14, fontWeight: '700', color: Colors.text },
-  optLabelActive: { color: '#fff' },
+  optLabelActive: { color: Colors.white },
   optSub: { fontSize: 11, color: Colors.textMuted },
   optSubActive: { color: 'rgba(255,255,255,0.65)' },
 });

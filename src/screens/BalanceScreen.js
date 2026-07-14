@@ -59,7 +59,7 @@ export default function BalanceScreen() {
       >
         {/* ── Hero balance ── */}
         <GradientHero
-          colors={balance >= 0 ? ['#00C48C', '#00A876', '#009E6E'] : ['#FF5A5F', '#E83E44', '#CC2D32']}
+          colors={balance >= 0 ? [Colors.income, '#00A876', '#009E6E'] : [Colors.expense, '#E83E44', '#CC2D32']}
         >
           <View style={s.heroTop}>
             <View style={{ flex: 1 }}>
@@ -71,11 +71,11 @@ export default function BalanceScreen() {
             </View>
           </View>
           <View style={s.heroStats}>
-            <HeroStat icon="arrow-up"    iconBg="rgba(0,196,140,0.25)"  iconColor="#A8FFE0" label={t('income')}       value={fmtC(curIncome)}  />
+            <HeroStat icon="arrow-up"    iconBg={Colors.income + '40'}  iconColor="#A8FFE0" label={t('income')}       value={fmtC(curIncome)}  />
             <View style={s.heroDivider} />
-            <HeroStat icon="arrow-down"  iconBg="rgba(255,90,95,0.25)"  iconColor="#FFB3B5" label={t('expense')}      value={fmtC(curExpense)} />
+            <HeroStat icon="arrow-down"  iconBg={Colors.expense + '40'}  iconColor="#FFB3B5" label={t('expense')}      value={fmtC(curExpense)} />
             <View style={s.heroDivider} />
-            <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor="#fff"    label={t('savings_rate')} value={`${savings}%`}   />
+            <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor={Colors.white} label={t('savings_rate')} value={`${savings}%`}   />
           </View>
         </GradientHero>
 
@@ -113,8 +113,8 @@ export default function BalanceScreen() {
         <View style={s.statsGrid}>
           <StatCard
             icon="flame"
-            iconColor="#FF9F43"
-            iconBg="#FFF4E6"
+            iconColor={Colors.warning}
+            iconBg={Colors.warningLight}
             label={t('per_day')}
             value={fmtC(dailyAvg)}
             sub={t('daily_expenses')}
@@ -290,7 +290,7 @@ const s = StyleSheet.create({
 
   heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: Spacing.xl },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', marginBottom: 4 },
-  heroBalance: { ...Typography.heroBalance, color: '#fff' },
+  heroBalance: { ...Typography.heroBalance, color: Colors.white },
   heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
   heroStats: {
     flexDirection: 'row', alignItems: 'center',

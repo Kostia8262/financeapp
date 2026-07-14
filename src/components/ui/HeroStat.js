@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '../../theme/colors';
 
 export default function HeroStat({ icon, iconBg, iconColor, label, value }) {
   return (
@@ -22,5 +23,5 @@ const s = StyleSheet.create({
   heroStat: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, overflow: 'hidden' },
   heroStatIcon: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   heroStatLabel: { fontSize: 10, color: 'rgba(255,255,255,0.65)', fontWeight: '500' },
-  heroStatValue: { fontSize: 13, color: '#fff', fontWeight: '700' },
+  heroStatValue: { fontSize: 13, color: Colors.white, fontWeight: '700' },
 });
