@@ -8,6 +8,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { getCategoryStats, getExtendedStats, getDailyDataBoth } from '../database/db';
 import { Colors } from '../theme/colors';
 import { Shadows } from '../theme/shadows';
+import { Spacing } from '../theme/spacing';
+import { Radius } from '../theme/radius';
+import { Typography } from '../theme/typography';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import CalendarModal from '../components/CalendarModal';
@@ -402,7 +405,7 @@ const s = StyleSheet.create({
   heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20, gap: 12 },
   heroLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', flex: 1 },
-  currencyBadge: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
+  currencyBadge: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: Spacing.sm, paddingVertical: 3, borderRadius: Radius.sm },
   currencyBadgeTxt: { fontSize: 11, color: '#fff', fontWeight: '700' },
   heroBalance: { fontSize: 42, fontWeight: '800', letterSpacing: -1 },
   heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
@@ -415,17 +418,17 @@ const s = StyleSheet.create({
 
   monthRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 12, backgroundColor: Colors.bg,
+    paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md, backgroundColor: Colors.bg,
   },
   monthArrow: { padding: 10 },
   monthArrowTxt: { fontSize: 22, fontWeight: '800', color: Colors.expense },
   monthPill: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: Colors.expenseLight, borderRadius: 28,
-    paddingHorizontal: 14, paddingVertical: 10, marginHorizontal: 8, gap: 8,
+    backgroundColor: Colors.expenseLight, borderRadius: Radius.xxl,
+    paddingHorizontal: 14, paddingVertical: 10, marginHorizontal: Spacing.sm, gap: Spacing.sm,
   },
   monthDayBox: {
-    width: 32, height: 32, borderRadius: 10,
+    width: 32, height: 32, borderRadius: Radius.sm,
     borderWidth: 2, borderColor: Colors.expense,
     alignItems: 'center', justifyContent: 'center',
   },
@@ -435,9 +438,9 @@ const s = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end' },
   overlayBg: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' },
 
-  toggleRow: { flexDirection: 'row', marginHorizontal: 16, gap: 10, marginBottom: 14, marginTop: 4 },
+  toggleRow: { flexDirection: 'row', marginHorizontal: Spacing.lg, gap: 10, marginBottom: 14, marginTop: 4 },
   toggleCard: {
-    flex: 1, borderRadius: 20, padding: 18,
+    flex: 1, borderRadius: Radius.xl, padding: 18,
     justifyContent: 'center', gap: 4, minHeight: 90,
     ...Shadows.card,
   },
@@ -451,7 +454,7 @@ const s = StyleSheet.create({
   },
 
   chartCard: {
-    marginHorizontal: 16, marginBottom: 14,
+    marginHorizontal: Spacing.lg, marginBottom: 14,
   },
   chartBars:   { flexDirection: 'row', alignItems: 'flex-end', gap: 2, height: 100 },
   barCol:      { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 4 },
@@ -465,12 +468,12 @@ const s = StyleSheet.create({
   legDot:      { width: 8, height: 8, borderRadius: 4 },
   legTxt:      { fontSize: 12, color: Colors.textSecondary },
 
-  statsRow: { flexDirection: 'row', marginHorizontal: 16, gap: 8, marginBottom: 14 },
+  statsRow: { flexDirection: 'row', marginHorizontal: Spacing.lg, gap: Spacing.sm, marginBottom: 14 },
   statPill: { flex: 1, alignItems: 'center', gap: 4 },
   statLabel: { fontSize: 10, fontWeight: '600', color: Colors.textMuted, textAlign: 'center' },
   statValue: { fontSize: 14, fontWeight: '800', letterSpacing: -0.3, textAlign: 'center' },
 
-  catList: { marginHorizontal: 16, gap: 8 },
+  catList: { marginHorizontal: Spacing.lg, gap: Spacing.sm },
   catRow: { flexDirection: 'row', gap: 12 },
   catIcon:  { width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
   catBody:  { flex: 1 },
@@ -486,19 +489,19 @@ const s = StyleSheet.create({
 const ps = StyleSheet.create({
   sheet: {
     backgroundColor: Colors.bgCard,
-    borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    paddingHorizontal: 16, paddingBottom: 32, paddingTop: 12,
+    borderTopLeftRadius: Radius.xxl, borderTopRightRadius: Radius.xxl,
+    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xxxl, paddingTop: Spacing.md,
   },
   handle: {
     width: 40, height: 4, borderRadius: 2,
     backgroundColor: Colors.border,
-    alignSelf: 'center', marginBottom: 12,
+    alignSelf: 'center', marginBottom: Spacing.md,
   },
   header: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: Spacing.lg,
   },
-  title:    { fontSize: 18, fontWeight: '800', color: Colors.text },
+  title:    { ...Typography.title },
   closeBtn: {
     width: 32, height: 32, borderRadius: 16,
     backgroundColor: Colors.bgInput,

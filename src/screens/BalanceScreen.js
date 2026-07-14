@@ -166,7 +166,7 @@ export default function BalanceScreen() {
         </Card>
 
         {/* ── Smart insights ── */}
-        <Card style={[s.card, { marginBottom: 8 }]} padding={18}>
+        <Card style={[s.card, { marginBottom: Spacing.sm }]} padding={18}>
           <Text style={s.cardTitle}>{t('smart_tips')}</Text>
           <View style={s.insightsList}>
             {insights.map((tip, i) => (
@@ -326,7 +326,7 @@ const s = StyleSheet.create({
   statValue: { fontSize: 20, fontWeight: '800', letterSpacing: -0.5 },
   statSub:   { fontSize: 10, color: Colors.textMuted },
 
-  progressBg: { height: 8, backgroundColor: Colors.borderLight, borderRadius: 4, marginBottom: 12 },
+  progressBg: { height: 8, backgroundColor: Colors.borderLight, borderRadius: 4, marginBottom: Spacing.md },
   progressFill: { height: 8, borderRadius: 4 },
   progressRow: { flexDirection: 'row', justifyContent: 'space-between' },
   progressLbl: { fontSize: 11, color: Colors.textMuted, marginBottom: 2 },
@@ -334,7 +334,7 @@ const s = StyleSheet.create({
 
   insightsList: { gap: 0 },
   insightRow: {
-    flexDirection: 'row', gap: 12, paddingVertical: 12,
+    flexDirection: 'row', gap: Spacing.md, paddingVertical: Spacing.md,
     borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
     alignItems: 'flex-start',
   },

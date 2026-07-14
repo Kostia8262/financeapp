@@ -10,6 +10,9 @@ import {
 } from '../database/db';
 import { formatShortDate } from '../utils/format';
 import { Colors } from '../theme/colors';
+import { Spacing } from '../theme/spacing';
+import { Radius } from '../theme/radius';
+import { Typography } from '../theme/typography';
 import DonutChart from '../components/DonutChart';
 import CalendarModal from '../components/CalendarModal';
 import { useCurrency } from '../context/CurrencyContext';
@@ -597,7 +600,7 @@ const s = StyleSheet.create({
   heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20, gap: 12 },
   heroLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', flex: 1 },
-  currencyBadge: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
+  currencyBadge: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: Spacing.sm, paddingVertical: 3, borderRadius: Radius.sm },
   currencyBadgeTxt: { fontSize: 11, color: '#fff', fontWeight: '700' },
   heroBalance: { fontSize: 42, fontWeight: '800', color: '#fff', letterSpacing: -1 },
   heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
@@ -615,17 +618,17 @@ const s = StyleSheet.create({
 
   monthRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 12, backgroundColor: Colors.bg,
+    paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md, backgroundColor: Colors.bg,
   },
   monthArrow: { padding: 10 },
   monthArrowTxt: { fontSize: 22, fontWeight: '800', color: Colors.expense },
   monthPill: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: Colors.expenseLight, borderRadius: 28,
-    paddingHorizontal: 14, paddingVertical: 10, marginHorizontal: 8, gap: 8,
+    backgroundColor: Colors.expenseLight, borderRadius: Radius.xxl,
+    paddingHorizontal: 14, paddingVertical: 10, marginHorizontal: Spacing.sm, gap: Spacing.sm,
   },
   monthDayBox: {
-    width: 32, height: 32, borderRadius: 10,
+    width: 32, height: 32, borderRadius: Radius.sm,
     borderWidth: 2, borderColor: Colors.expense,
     alignItems: 'center', justifyContent: 'center',
   },
@@ -642,15 +645,15 @@ const s = StyleSheet.create({
   sideCol: { gap: 4, justifyContent: 'center' },
   donutWrap: { alignItems: 'center', justifyContent: 'center' },
 
-  chip: { alignItems: 'center', gap: 4, paddingVertical: 8 },
+  chip: { alignItems: 'center', gap: 4, paddingVertical: Spacing.sm },
   chipName: { fontSize: 10, fontWeight: '600', color: Colors.textSecondary, textAlign: 'center', width: '100%' },
   chipCircle: { alignItems: 'center', justifyContent: 'center' },
   chipAmt: { fontSize: 11, fontWeight: '700', textAlign: 'center', width: '100%' },
 
   txRow: {
     flexDirection: 'row', alignItems: 'center',
-    paddingVertical: 12, paddingHorizontal: 16,
-    borderBottomWidth: 1, borderBottomColor: Colors.borderLight, gap: 12,
+    paddingVertical: Spacing.md, paddingHorizontal: Spacing.lg,
+    borderBottomWidth: 1, borderBottomColor: Colors.borderLight, gap: Spacing.md,
   },
   txIcon: { width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   txBody: { flex: 1 },
@@ -667,19 +670,19 @@ const s = StyleSheet.create({
 const ps = StyleSheet.create({
   sheet: {
     backgroundColor: Colors.bgCard,
-    borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    paddingHorizontal: 16, paddingBottom: 32, paddingTop: 12,
+    borderTopLeftRadius: Radius.xxl, borderTopRightRadius: Radius.xxl,
+    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xxxl, paddingTop: Spacing.md,
   },
   handle: {
     width: 40, height: 4, borderRadius: 2,
     backgroundColor: Colors.border,
-    alignSelf: 'center', marginBottom: 12,
+    alignSelf: 'center', marginBottom: Spacing.md,
   },
   header: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: Spacing.lg,
   },
-  title: { fontSize: 18, fontWeight: '800', color: Colors.text },
+  title: { ...Typography.title },
   closeBtn: {
     width: 32, height: 32, borderRadius: 16,
     backgroundColor: Colors.bgInput,
