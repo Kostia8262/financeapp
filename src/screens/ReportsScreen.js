@@ -18,6 +18,7 @@ import Card from '../components/ui/Card';
 import GradientHero from '../components/ui/GradientHero';
 import HeroStat from '../components/ui/HeroStat';
 import EmptyState from '../components/ui/EmptyState';
+import PeriodPill from '../components/ui/PeriodPill';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -185,27 +186,14 @@ export default function ReportsScreen() {
         </GradientHero>
 
         {/* Period selector */}
-        <View style={s.monthRow}>
-          {canShift ? (
-            <TouchableOpacity style={s.monthArrow} onPress={() => setAnchor(a => shiftAnchor(a, period, -1))} activeOpacity={0.7}>
-              <Text style={s.monthArrowTxt}>{'«'}</Text>
-            </TouchableOpacity>
-          ) : <View style={s.monthArrow} />}
-
-          <TouchableOpacity style={s.monthPill} onPress={() => setShowSheet(true)} activeOpacity={0.8}>
-            <View style={s.monthDayBox}>
-              <Text style={s.monthDayTxt}>{currBadge}</Text>
-            </View>
-            <Text style={s.monthPillTxt}>{currLabel}</Text>
-            <Ionicons name="chevron-down" size={13} color={Colors.expense} />
-          </TouchableOpacity>
-
-          {canShift ? (
-            <TouchableOpacity style={s.monthArrow} onPress={() => setAnchor(a => shiftAnchor(a, period, 1))} activeOpacity={0.7}>
-              <Text style={s.monthArrowTxt}>{'»'}</Text>
-            </TouchableOpacity>
-          ) : <View style={s.monthArrow} />}
-        </View>
+        <PeriodPill
+          canNavigate={canShift}
+          badge={currBadge}
+          label={currLabel}
+          onPrev={() => setAnchor(a => shiftAnchor(a, period, -1))}
+          onNext={() => setAnchor(a => shiftAnchor(a, period, 1))}
+          onPress={() => setShowSheet(true)}
+        />
 
         {/* Toggle cards */}
         <View style={s.toggleRow}>
@@ -415,25 +403,6 @@ const s = StyleSheet.create({
     borderRadius: 18, padding: 14,
   },
   heroDivider: { width: 1, height: 32, backgroundColor: 'rgba(255,255,255,0.18)', marginHorizontal: 4 },
-
-  monthRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md, backgroundColor: Colors.bg,
-  },
-  monthArrow: { padding: 10 },
-  monthArrowTxt: { fontSize: 22, fontWeight: '800', color: Colors.expense },
-  monthPill: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: Colors.expenseLight, borderRadius: Radius.xxl,
-    paddingHorizontal: 14, paddingVertical: 10, marginHorizontal: Spacing.sm, gap: Spacing.sm,
-  },
-  monthDayBox: {
-    width: 32, height: 32, borderRadius: Radius.sm,
-    borderWidth: 2, borderColor: Colors.expense,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  monthDayTxt: { fontSize: 12, fontWeight: '800', color: Colors.expense },
-  monthPillTxt: { fontSize: 13, fontWeight: '800', color: Colors.expense, letterSpacing: 0.3, flexShrink: 1 },
 
   overlay: { flex: 1, justifyContent: 'flex-end' },
   overlayBg: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' },

@@ -19,6 +19,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAppVersion } from '../utils/version';
 import Card from '../components/ui/Card';
 import GradientHero from '../components/ui/GradientHero';
+import ModalActions from '../components/ui/ModalActions';
 
 const BACKUP_FILENAME = 'FinanceApp_Backup.json';
 
@@ -320,12 +321,13 @@ export default function ProfileScreen({ navigation }) {
               )}
             </ScrollView>
             <View style={s.modalBtns}>
-              <TouchableOpacity style={s.cancelBtn} onPress={() => setPreview(null)}>
-                <Text style={s.cancelTxt}>{t('cancel')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={s.confirmBtn} onPress={handleConfirmImport} disabled={importing}>
-                {importing ? <ActivityIndicator color={Colors.white} /> : <Text style={s.confirmTxt}>{t('import_btn')}</Text>}
-              </TouchableOpacity>
+              <ModalActions
+                cancelLabel={t('cancel')}
+                confirmLabel={t('import_btn')}
+                onCancel={() => setPreview(null)}
+                onConfirm={handleConfirmImport}
+                loading={importing}
+              />
             </View>
           </View>
         </View>
@@ -482,8 +484,4 @@ const s = StyleSheet.create({
   previewAmt: { fontSize: 13, fontWeight: '700' },
   moreText: { textAlign: 'center', color: Colors.textMuted, fontSize: 12, paddingVertical: 10 },
   modalBtns: { flexDirection: 'row', gap: 10, marginTop: Spacing.lg },
-  cancelBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.bgMuted },
-  cancelTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
-  confirmBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.primary },
-  confirmTxt: { fontSize: 15, fontWeight: '700', color: Colors.white },
 });

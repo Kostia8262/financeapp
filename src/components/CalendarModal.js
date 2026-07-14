@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
+import ModalActions from './ui/ModalActions';
 
 const { width } = Dimensions.get('window');
 const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
@@ -180,12 +181,14 @@ export default function CalendarModal({ visible, onClose, mode = 'range', from, 
 
           {/* Buttons */}
           <View style={s.btnRow}>
-            <TouchableOpacity style={s.cancelBtn} onPress={onClose}>
-              <Text style={s.cancelTxt}>Отмена</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[s.applyBtn, !selFrom && { opacity: 0.4 }]} onPress={handleApply} disabled={!selFrom}>
-              <Text style={s.applyTxt}>{mode === 'range' ? 'Применить' : 'Выбрать'}</Text>
-            </TouchableOpacity>
+            <ModalActions
+              cancelLabel="Отмена"
+              confirmLabel={mode === 'range' ? 'Применить' : 'Выбрать'}
+              onCancel={onClose}
+              onConfirm={handleApply}
+              disabled={!selFrom}
+              confirmFlex={2}
+            />
           </View>
         </View>
       </View>
@@ -227,8 +230,4 @@ const s = StyleSheet.create({
   todayDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.primary, position: 'absolute', bottom: 3 },
 
   btnRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
-  cancelBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: Colors.bgMuted },
-  cancelTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
-  applyBtn: { flex: 2, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: Colors.primary },
-  applyTxt: { fontSize: 15, fontWeight: '700', color: Colors.white },
 });

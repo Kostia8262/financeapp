@@ -12,6 +12,7 @@ import { Spacing } from '../theme/spacing';
 import { Radius } from '../theme/radius';
 import { useLanguage } from '../context/LanguageContext';
 import Card from '../components/ui/Card';
+import ModalActions from '../components/ui/ModalActions';
 import EmptyState from '../components/ui/EmptyState';
 
 const ICONS = [
@@ -184,12 +185,12 @@ export default function CategoriesScreen() {
             </View>
 
             <View style={s.modalBtns}>
-              <TouchableOpacity style={s.cancelBtn} onPress={() => setShowModal(false)}>
-                <Text style={s.cancelTxt}>{t('cancel')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={s.confirmBtn} onPress={handleSave}>
-                <Text style={s.confirmTxt}>{editingId ? t('save') : t('add')}</Text>
-              </TouchableOpacity>
+              <ModalActions
+                cancelLabel={t('cancel')}
+                confirmLabel={editingId ? t('save') : t('add')}
+                onCancel={() => setShowModal(false)}
+                onConfirm={handleSave}
+              />
             </View>
           </View>
         </View>
@@ -234,8 +235,4 @@ const s = StyleSheet.create({
   iconBtn: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.bgInput, borderWidth: 1.5, borderColor: Colors.border },
 
   modalBtns: { flexDirection: 'row', gap: 10 },
-  cancelBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.bgMuted },
-  cancelTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
-  confirmBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.primary },
-  confirmTxt: { fontSize: 15, fontWeight: '700', color: Colors.white },
 });
