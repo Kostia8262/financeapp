@@ -11,6 +11,9 @@ import { getAllDataForBackup, importBackupData, clearAllTransactions } from '../
 import { exportToCSV } from '../utils/export';
 import { pickAndParseCSV, importRows } from '../utils/import';
 import { Colors } from '../theme/colors';
+import { Spacing } from '../theme/spacing';
+import { Radius } from '../theme/radius';
+import { Typography } from '../theme/typography';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppVersion } from '../utils/version';
@@ -158,7 +161,7 @@ export default function ProfileScreen({ navigation }) {
           <Text style={s.userSub}>FinanceApp {appVersion}</Text>
         </GradientHero>
 
-        <View style={{ height: 16 }} />
+        <View style={{ height: Spacing.lg }} />
 
         {/* ── Резервное копирование ── */}
         <SectionCard
@@ -413,24 +416,24 @@ const s = StyleSheet.create({
   userSub:  { fontSize: 13, color: 'rgba(255,255,255,0.7)' },
 
   sectionCard: {
-    marginHorizontal: 16, marginBottom: 10,
+    marginHorizontal: Spacing.lg, marginBottom: 10,
   },
-  sectionHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg, gap: Spacing.md },
   sectionIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   sectionTitle: { flex: 1, fontSize: 15, fontWeight: '700', color: Colors.text },
-  sectionBody: { paddingHorizontal: 16, paddingBottom: 16 },
+  sectionBody: { paddingHorizontal: Spacing.lg, paddingBottom: Spacing.lg },
   sectionSubtitle: { fontSize: 11, color: Colors.textMuted, marginBottom: 12, fontWeight: '600', letterSpacing: 0.5, textTransform: 'uppercase' },
 
   backupBlock: { gap: 8 },
   infoBox: {
-    flexDirection: 'row', gap: 8, alignItems: 'flex-start',
+    flexDirection: 'row', gap: Spacing.sm, alignItems: 'flex-start',
     backgroundColor: Colors.primaryLight, borderRadius: 12,
-    padding: 12, marginBottom: 4,
+    padding: Spacing.md, marginBottom: 4,
   },
   infoTxt: { flex: 1, fontSize: 12, color: Colors.primary, lineHeight: 18 },
   backupActionRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: Colors.bgInput, borderRadius: 12, padding: 12,
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+    backgroundColor: Colors.bgInput, borderRadius: 12, padding: Spacing.md,
   },
   backupActionIcon: { width: 40, height: 40, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   backupActionLabel: { fontSize: 13, fontWeight: '600', color: Colors.text },
@@ -439,13 +442,13 @@ const s = StyleSheet.create({
   rateBlock: { alignItems: 'center', gap: 14 },
   rateText: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20 },
   starsRow: { flexDirection: 'row', gap: 6 },
-  rateBtn: { backgroundColor: '#FF9F43', borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 },
+  rateBtn: { backgroundColor: '#FF9F43', borderRadius: 12, paddingHorizontal: Spacing.xxl, paddingVertical: Spacing.md },
   rateBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
 
   supportBlock: { gap: 4 },
   supportRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.md,
+    paddingVertical: Spacing.md, borderBottomWidth: 1, borderBottomColor: Colors.borderLight,
   },
   supportIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   supportLabel: { fontSize: 14, fontWeight: '600', color: Colors.text },
@@ -458,29 +461,29 @@ const s = StyleSheet.create({
   },
   aboutLabel: { fontSize: 13, color: Colors.textSecondary },
   aboutValue: { fontSize: 13, fontWeight: '600', color: Colors.text },
-  aboutNote:  { fontSize: 12, color: Colors.textMuted, lineHeight: 18, marginTop: 12 },
+  aboutNote:  { fontSize: 12, color: Colors.textMuted, lineHeight: 18, marginTop: Spacing.md },
 
   dataBlock: { gap: 8 },
   csvHint: {
-    flexDirection: 'row', gap: 8, alignItems: 'flex-start',
-    backgroundColor: Colors.primaryLight, borderRadius: 12, padding: 12, marginTop: 8,
+    flexDirection: 'row', gap: Spacing.sm, alignItems: 'flex-start',
+    backgroundColor: Colors.primaryLight, borderRadius: 12, padding: Spacing.md, marginTop: Spacing.sm,
   },
   csvHintTxt: { flex: 1, fontSize: 11, color: Colors.primary, lineHeight: 17 },
 
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  modal: { backgroundColor: Colors.bgCard, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 },
+  modal: { backgroundColor: Colors.bgCard, borderTopLeftRadius: Radius.xxl, borderTopRightRadius: Radius.xxl, padding: Spacing.xl },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
-  modalTitle: { fontSize: 18, fontWeight: '800', color: Colors.text },
-  modalSub: { fontSize: 13, color: Colors.textMuted, marginBottom: 16 },
+  modalTitle: { ...Typography.title },
+  modalSub: { fontSize: 13, color: Colors.textMuted, marginBottom: Spacing.lg },
   previewRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.borderLight, gap: 10 },
   previewDot: { width: 8, height: 8, borderRadius: 4, marginTop: 2 },
   previewCat: { fontSize: 13, fontWeight: '600', color: Colors.text },
   previewNote: { fontSize: 11, color: Colors.textMuted, marginTop: 1 },
   previewAmt: { fontSize: 13, fontWeight: '700' },
   moreText: { textAlign: 'center', color: Colors.textMuted, fontSize: 12, paddingVertical: 10 },
-  modalBtns: { flexDirection: 'row', gap: 10, marginTop: 16 },
-  cancelBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: Colors.bgMuted },
+  modalBtns: { flexDirection: 'row', gap: 10, marginTop: Spacing.lg },
+  cancelBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.bgMuted },
   cancelTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
-  confirmBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: Colors.primary },
+  confirmBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.primary },
   confirmTxt: { fontSize: 15, fontWeight: '700', color: '#fff' },
 });

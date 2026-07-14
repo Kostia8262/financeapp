@@ -597,7 +597,7 @@ function TxRow({ item, last, noCategory }) {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 
-  heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20, gap: 12 },
+  heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: Spacing.xl, gap: Spacing.md },
   heroLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', flex: 1 },
   currencyBadge: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: Spacing.sm, paddingVertical: 3, borderRadius: Radius.sm },

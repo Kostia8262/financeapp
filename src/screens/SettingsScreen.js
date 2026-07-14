@@ -112,8 +112,8 @@ export default function SettingsScreen() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  title: { ...Typography.h1, paddingHorizontal: 20, paddingTop: 56, marginBottom: 20 },
-  sectionLabel: { ...Typography.sectionLabel, marginHorizontal: 20, marginBottom: 10 },
+  title: { ...Typography.h1, paddingHorizontal: Spacing.xl, paddingTop: 56, marginBottom: Spacing.xl },
+  sectionLabel: { ...Typography.sectionLabel, marginHorizontal: Spacing.xl, marginBottom: 10 },
 
   // Currency picker
   currencyCard: { marginHorizontal: Spacing.lg, marginBottom: Spacing.xl },

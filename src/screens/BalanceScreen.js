@@ -287,7 +287,7 @@ function StatCard({ icon, iconColor, iconBg, label, value, sub }) {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 
-  heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
+  heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: Spacing.xl },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', marginBottom: 4 },
   heroBalance: { fontSize: 42, fontWeight: '800', color: '#fff', letterSpacing: -1 },
   heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
