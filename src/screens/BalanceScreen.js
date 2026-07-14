@@ -4,11 +4,14 @@ import {
 } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { getInsights, getMonthlyTrend } from '../database/db';
 import { Colors } from '../theme/colors';
+import { Spacing } from '../theme/spacing';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
+import Card from '../components/ui/Card';
+import GradientHero from '../components/ui/GradientHero';
+import HeroStat from '../components/ui/HeroStat';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CHART_H = 80;
@@ -54,10 +57,9 @@ export default function BalanceScreen() {
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         {/* ── Hero balance ── */}
-        <LinearGradient
+        <GradientHero
           colors={balance >= 0 ? ['#00C48C', '#00A876', '#009E6E'] : ['#FF5A5F', '#E83E44', '#CC2D32']}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={s.hero}
+          style={{ marginBottom: Spacing.lg }}
         >
           <View style={s.heroTop}>
             <View style={{ flex: 1 }}>
@@ -75,11 +77,11 @@ export default function BalanceScreen() {
             <View style={s.heroDivider} />
             <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor="#fff"    label={t('savings_rate')} value={`${savings}%`}   />
           </View>
-        </LinearGradient>
+        </GradientHero>
 
         {/* ── Monthly trend chart ── */}
         {trend.length > 1 && (
-          <View style={s.card}>
+          <Card style={s.card} padding={18}>
             <Text style={s.cardTitle}>{t('trend_6m')}</Text>
             <View style={s.trendChart}>
               {trend.map((row, i) => {
@@ -102,7 +104,7 @@ export default function BalanceScreen() {
               <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.income  }]} /><Text style={s.legTxt}>{t('income')}</Text></View>
               <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.expense }]} /><Text style={s.legTxt}>{t('expense')}</Text></View>
             </View>
-          </View>
+          </Card>
         )}
 
         {/* ── Quick stats ── */}
@@ -142,7 +144,7 @@ export default function BalanceScreen() {
         </View>
 
         {/* ── Month progress ── */}
-        <View style={s.card}>
+        <Card style={s.card} padding={18}>
           <Text style={s.cardTitle}>{t('month')}: {daysPassed} / {daysInMonth}</Text>
           <View style={s.progressBg}>
             <View style={[s.progressFill, {
@@ -160,10 +162,10 @@ export default function BalanceScreen() {
               <Text style={[s.progressVal, { color: Colors.primary }]}>{fmtC(projected)}</Text>
             </View>
           </View>
-        </View>
+        </Card>
 
         {/* ── Smart insights ── */}
-        <View style={[s.card, { marginBottom: 8 }]}>
+        <Card style={[s.card, { marginBottom: 8 }]} padding={18}>
           <Text style={s.cardTitle}>{t('smart_tips')}</Text>
           <View style={s.insightsList}>
             {insights.map((tip, i) => (
@@ -178,7 +180,7 @@ export default function BalanceScreen() {
               </View>
             ))}
           </View>
-        </View>
+        </Card>
 
       </ScrollView>
     </View>
@@ -264,23 +266,9 @@ function buildInsights(d, fmtC) {
 
 // ─── Sub-components ───────────────────────────────────────────
 
-function HeroStat({ icon, iconBg, iconColor, label, value }) {
-  return (
-    <View style={s.heroStat}>
-      <View style={[s.heroStatIcon, { backgroundColor: iconBg }]}>
-        <Ionicons name={icon} size={14} color={iconColor} />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={s.heroStatLabel}>{label}</Text>
-        <Text style={s.heroStatValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>{value}</Text>
-      </View>
-    </View>
-  );
-}
-
 function StatCard({ icon, iconColor, iconBg, label, value, sub }) {
   return (
-    <View style={s.statCard}>
+    <Card style={s.statCard} padding={16}>
       <View style={[s.statIcon, { backgroundColor: iconBg }]}>
         <Ionicons name={icon} size={20} color={iconColor} />
       </View>
@@ -289,7 +277,7 @@ function StatCard({ icon, iconColor, iconBg, label, value, sub }) {
         {value}
       </Text>
       <Text style={s.statSub}>{sub}</Text>
-    </View>
+    </Card>
   );
 }
 
@@ -298,10 +286,6 @@ function StatCard({ icon, iconColor, iconBg, label, value, sub }) {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 
-  hero: {
-    paddingTop: 56, paddingBottom: 24, paddingHorizontal: 20,
-    borderBottomLeftRadius: 32, borderBottomRightRadius: 32, marginBottom: 16,
-  },
   heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', marginBottom: 4 },
   heroBalance: { fontSize: 42, fontWeight: '800', color: '#fff', letterSpacing: -1 },
@@ -311,17 +295,10 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: 18, padding: 14,
   },
-  heroStat: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, overflow: 'hidden' },
-  heroStatIcon: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  heroStatLabel: { fontSize: 10, color: 'rgba(255,255,255,0.65)', fontWeight: '500' },
-  heroStatValue: { fontSize: 13, color: '#fff', fontWeight: '700' },
   heroDivider: { width: 1, height: 32, backgroundColor: 'rgba(255,255,255,0.18)', marginHorizontal: 4 },
 
   card: {
-    marginHorizontal: 16, marginBottom: 12,
-    backgroundColor: Colors.bgCard, borderRadius: 20,
-    padding: 18, elevation: 3, shadowColor: Colors.shadowDark,
-    shadowOffset: { width: 0, height: 2 }, shadowOpacity: 1, shadowRadius: 8,
+    marginHorizontal: Spacing.lg, marginBottom: Spacing.md,
   },
   cardTitle: { fontSize: 15, fontWeight: '700', color: Colors.text, marginBottom: 14 },
 
@@ -337,14 +314,11 @@ const s = StyleSheet.create({
 
   statsGrid: {
     flexDirection: 'row', flexWrap: 'wrap', gap: 10,
-    marginHorizontal: 16, marginBottom: 12,
+    marginHorizontal: Spacing.lg, marginBottom: Spacing.md,
   },
   statCard: {
-    width: (SCREEN_W - 16 * 2 - 10) / 2,
-    backgroundColor: Colors.bgCard, borderRadius: 18,
-    padding: 16, gap: 4, elevation: 3,
-    shadowColor: Colors.shadowDark,
-    shadowOffset: { width: 0, height: 2 }, shadowOpacity: 1, shadowRadius: 8,
+    width: (SCREEN_W - Spacing.lg * 2 - 10) / 2,
+    gap: 4,
   },
   statIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
   statLabel: { fontSize: 11, fontWeight: '600', color: Colors.textMuted },
