@@ -22,7 +22,8 @@ async function initDatabase(db) {
       name TEXT NOT NULL,
       type TEXT NOT NULL,
       color TEXT NOT NULL DEFAULT '#607D8B',
-      icon TEXT NOT NULL DEFAULT 'ellipse'
+      icon TEXT NOT NULL DEFAULT 'ellipse',
+      is_default INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS transactions (
@@ -48,13 +49,28 @@ async function initDatabase(db) {
     await db.execAsync("ALTER TABLE transactions ADD COLUMN currency TEXT DEFAULT 'UAH'");
   } catch {}
 
-  // Migration: reset to new category set if version is outdated
+  // Migration: add is_default column to existing databases
+  try {
+    await db.execAsync('ALTER TABLE categories ADD COLUMN is_default INTEGER NOT NULL DEFAULT 0');
+  } catch {}
+
+  // Migration: reset to new category set if version is outdated.
+  // Only the seeded defaults (is_default = 1) are replaced — user-added
+  // categories are never touched by a version bump.
   const catVer = await db.getFirstAsync("SELECT value FROM settings WHERE key = 'categories_version'");
   if (!catVer || catVer.value !== '2') {
-    await db.execAsync('DELETE FROM categories');
+    await db.execAsync('DELETE FROM categories WHERE is_default = 1');
     await seedDefaultCategories(db);
     await db.runAsync("INSERT OR REPLACE INTO settings (key, value) VALUES ('categories_version', '2')");
   } else {
+    // Backfill is_default for installs that seeded categories before the
+    // is_default column existed, so future version bumps don't duplicate them.
+    for (const [name, type] of DEFAULT_CATEGORIES) {
+      await db.runAsync(
+        'UPDATE categories SET is_default = 1 WHERE name = ? AND type = ? AND is_default = 0',
+        [name, type]
+      );
+    }
     // Remove any accidental duplicates that slipped in from previous race-condition bug
     await db.execAsync(`
       DELETE FROM categories WHERE id NOT IN (
@@ -77,31 +93,31 @@ export async function setSetting(key, value) {
   await db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [key, String(value)]);
 }
 
-async function seedDefaultCategories(db) {
-  const defaults = [
-    // Expenses
-    ['Продукты',          'expense', '#FF5722', 'fast-food'],
-    ['Кафе',              'expense', '#795548', 'cafe'],
-    ['Досуг',             'expense', '#2196F3', 'game-controller'],
-    ['Транспорт',         'expense', '#FF9800', 'car'],
-    ['Подарки',           'expense', '#E91E63', 'gift'],
-    ['Покупки',           'expense', '#00BCD4', 'cart'],
-    ['Бизнес',            'expense', '#6C47FF', 'briefcase'],
-    ['Налоги и комиссии', 'expense', '#607D8B', 'receipt-outline'],
-    ['Аренда жилья',      'expense', '#9C27B0', 'home'],
-    ['Семья',             'expense', '#FF6B6B', 'people-outline'],
-    ['Здоровье',          'expense', '#F44336', 'medkit'],
-    // Income
-    ['Зарплата',     'income', '#4CAF50', 'cash-outline'],
-    ['Пассивно',     'income', '#009688', 'trending-up'],
-    ['Бизнес компы', 'income', '#FF9800', 'briefcase-outline'],
-    ['Индивидуалы',  'income', '#8BC34A', 'person-outline'],
-    ['Инвестиции',   'income', '#0652DD', 'analytics'],
-  ];
+const DEFAULT_CATEGORIES = [
+  // Expenses
+  ['Продукты',          'expense', '#FF5722', 'fast-food'],
+  ['Кафе',              'expense', '#795548', 'cafe'],
+  ['Досуг',             'expense', '#2196F3', 'game-controller'],
+  ['Транспорт',         'expense', '#FF9800', 'car'],
+  ['Подарки',           'expense', '#E91E63', 'gift'],
+  ['Покупки',           'expense', '#00BCD4', 'cart'],
+  ['Бизнес',            'expense', '#6C47FF', 'briefcase'],
+  ['Налоги и комиссии', 'expense', '#607D8B', 'receipt-outline'],
+  ['Аренда жилья',      'expense', '#9C27B0', 'home'],
+  ['Семья',             'expense', '#FF6B6B', 'people-outline'],
+  ['Здоровье',          'expense', '#F44336', 'medkit'],
+  // Income
+  ['Зарплата',     'income', '#4CAF50', 'cash-outline'],
+  ['Пассивно',     'income', '#009688', 'trending-up'],
+  ['Бизнес компы', 'income', '#FF9800', 'briefcase-outline'],
+  ['Индивидуалы',  'income', '#8BC34A', 'person-outline'],
+  ['Инвестиции',   'income', '#0652DD', 'analytics'],
+];
 
-  for (const [name, type, color, icon] of defaults) {
+async function seedDefaultCategories(db) {
+  for (const [name, type, color, icon] of DEFAULT_CATEGORIES) {
     await db.runAsync(
-      'INSERT INTO categories (name, type, color, icon) VALUES (?, ?, ?, ?)',
+      'INSERT INTO categories (name, type, color, icon, is_default) VALUES (?, ?, ?, ?, 1)',
       [name, type, color, icon]
     );
   }
@@ -189,21 +205,6 @@ export async function getRangeBalance(dateFrom, dateTo, currency) {
   return { income: row.income, expense: row.expense, balance: row.income - row.expense };
 }
 
-export async function getMonthlyBalance(year, month, currency) {
-  const db = await getDatabase();
-  const from = `${year}-${String(month).padStart(2, '0')}-01`;
-  const to   = `${year}-${String(month).padStart(2, '0')}-31`;
-  const extra = currency ? ' AND currency = ?' : '';
-  const params = currency ? [from, to, currency] : [from, to];
-  const row = await db.getFirstAsync(`
-    SELECT
-      COALESCE(SUM(CASE WHEN type='income' THEN amount ELSE 0 END), 0) as income,
-      COALESCE(SUM(CASE WHEN type='expense' THEN amount ELSE 0 END), 0) as expense
-    FROM transactions WHERE date BETWEEN ? AND ?${extra}
-  `, params);
-  return { income: row.income, expense: row.expense, balance: row.income - row.expense };
-}
-
 export async function getCategoryStats({ type, dateFrom, dateTo, currency } = {}) {
   const db = await getDatabase();
   let query = `
@@ -225,30 +226,6 @@ export async function getCategoryStats({ type, dateFrom, dateTo, currency } = {}
   query += ' GROUP BY c.id ORDER BY total DESC';
 
   return await db.getAllAsync(query, params);
-}
-
-export async function getMonthlyChartData(year, currency) {
-  const db = await getDatabase();
-  const extra = currency ? ' AND currency = ?' : '';
-  const params = currency ? [String(year), currency] : [String(year)];
-  const rows = await db.getAllAsync(`
-    SELECT
-      strftime('%m', date) as month,
-      type,
-      SUM(amount) as total
-    FROM transactions
-    WHERE strftime('%Y', date) = ?${extra}
-    GROUP BY month, type
-    ORDER BY month
-  `, params);
-
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
-  return months.map(m => {
-    const mStr = String(m).padStart(2, '0');
-    const inc = rows.find(r => r.month === mStr && r.type === 'income');
-    const exp = rows.find(r => r.month === mStr && r.type === 'expense');
-    return { month: m, income: inc?.total || 0, expense: exp?.total || 0 };
-  });
 }
 
 // --- Categories ---
@@ -294,7 +271,7 @@ export async function clearAllTransactions() {
 
 export async function getExtendedStats({ type, dateFrom, dateTo, currency }) {
   const db = await getDatabase();
-  const cur = currency ? ` AND currency = '${currency}'` : '';
+  const cur = currency ? ' AND currency = ?' : '';
   const todayStr = new Date().toISOString().slice(0, 10);
   const now = new Date();
   const weekDay = (now.getDay() + 6) % 7;
@@ -305,19 +282,19 @@ export async function getExtendedStats({ type, dateFrom, dateTo, currency }) {
   const [period, today, week, dayCount] = await Promise.all([
     db.getFirstAsync(
       `SELECT COALESCE(SUM(amount),0) as total FROM transactions WHERE type=? AND date BETWEEN ? AND ?${cur}`,
-      [type, dateFrom, dateTo]
+      currency ? [type, dateFrom, dateTo, currency] : [type, dateFrom, dateTo]
     ),
     db.getFirstAsync(
       `SELECT COALESCE(SUM(amount),0) as total FROM transactions WHERE type=? AND date=?${cur}`,
-      [type, todayStr]
+      currency ? [type, todayStr, currency] : [type, todayStr]
     ),
     db.getFirstAsync(
       `SELECT COALESCE(SUM(amount),0) as total FROM transactions WHERE type=? AND date>=?${cur}`,
-      [type, weekStartStr]
+      currency ? [type, weekStartStr, currency] : [type, weekStartStr]
     ),
     db.getFirstAsync(
       `SELECT COUNT(DISTINCT date) as cnt FROM transactions WHERE type=? AND date BETWEEN ? AND ?${cur}`,
-      [type, dateFrom, dateTo]
+      currency ? [type, dateFrom, dateTo, currency] : [type, dateFrom, dateTo]
     ),
   ]);
   const days = Math.max(dayCount.cnt, 1);
@@ -361,21 +338,22 @@ export async function getDailyDataBoth({ dateFrom, dateTo, currency }) {
 
 export async function getMonthlyTrend(months = 6, currency) {
   const db = await getDatabase();
-  const extra = currency ? ` AND currency = '${currency}'` : '';
+  const extra = currency ? ' AND currency = ?' : '';
   const rows = await db.getAllAsync(
     `SELECT strftime('%Y-%m', date) as month,
        SUM(CASE WHEN type='income'  THEN amount ELSE 0 END) as income,
        SUM(CASE WHEN type='expense' THEN amount ELSE 0 END) as expense
      FROM transactions WHERE 1=1${extra}
      GROUP BY month ORDER BY month DESC LIMIT ?`,
-    [months]
+    currency ? [currency, months] : [months]
   );
   return rows.reverse();
 }
 
 export async function getInsights(currency) {
   const db = await getDatabase();
-  const c = currency ? ` AND currency = '${currency}'` : '';
+  const c = currency ? ' AND currency = ?' : '';
+  const withCur = (...params) => currency ? [...params, currency] : params;
   const now = new Date();
   const y = now.getFullYear();
   const m = String(now.getMonth() + 1).padStart(2, '0');
@@ -397,30 +375,31 @@ export async function getInsights(currency) {
       `SELECT SUM(CASE WHEN type='income' THEN amount ELSE 0 END) as income,
               SUM(CASE WHEN type='expense' THEN amount ELSE 0 END) as expense
        FROM transactions WHERE date BETWEEN ? AND ?${c}`,
-      [curFrom, curTo]
+      withCur(curFrom, curTo)
     ),
     db.getFirstAsync(
       `SELECT SUM(CASE WHEN type='income' THEN amount ELSE 0 END) as income,
               SUM(CASE WHEN type='expense' THEN amount ELSE 0 END) as expense
        FROM transactions WHERE date BETWEEN ? AND ?${c}`,
-      [prevFrom, prevTo]
+      withCur(prevFrom, prevTo)
     ),
     db.getFirstAsync(
       `SELECT SUM(CASE WHEN type='income' THEN amount ELSE 0 END) as income,
               SUM(CASE WHEN type='expense' THEN amount ELSE 0 END) as expense
-       FROM transactions WHERE 1=1${c}`
+       FROM transactions WHERE 1=1${c}`,
+      withCur()
     ),
     db.getFirstAsync(
       `SELECT c.name, c.color, SUM(t.amount) as total
        FROM transactions t JOIN categories c ON t.category_id = c.id
        WHERE t.type='expense' AND t.date BETWEEN ? AND ?${c}
        GROUP BY c.id ORDER BY total DESC LIMIT 1`,
-      [curFrom, curTo]
+      withCur(curFrom, curTo)
     ),
     db.getFirstAsync(
       `SELECT COALESCE(SUM(amount),0) as total FROM transactions
        WHERE type='expense' AND date BETWEEN ? AND ?${c}`,
-      [curFrom, todayStr]
+      withCur(curFrom, todayStr)
     ),
   ]);
 
@@ -473,8 +452,8 @@ export async function importBackupData(data) {
     }
     for (const t of data.transactions) {
       await db.runAsync(
-        'INSERT OR REPLACE INTO transactions (id, amount, type, category_id, note, date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [t.id, t.amount, t.type, t.category_id, t.note || '', t.date, t.created_at || new Date().toISOString()]
+        'INSERT OR REPLACE INTO transactions (id, amount, type, category_id, note, date, currency, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [t.id, t.amount, t.type, t.category_id, t.note || '', t.date, t.currency || 'UAH', t.created_at || new Date().toISOString()]
       );
     }
     await db.execAsync('COMMIT');

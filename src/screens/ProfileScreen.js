@@ -12,11 +12,16 @@ import { getAllDataForBackup, importBackupData, clearAllTransactions } from '../
 import { exportToCSV } from '../utils/export';
 import { pickAndParseCSV, importRows } from '../utils/import';
 import { Colors } from '../theme/colors';
+import { useCurrency } from '../context/CurrencyContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useAppVersion } from '../utils/version';
 
-const APP_VERSION = '1.0.0';
 const BACKUP_FILENAME = 'FinanceApp_Backup.json';
 
 export default function ProfileScreen({ navigation }) {
+  const { currency } = useCurrency();
+  const { t } = useLanguage();
+  const appVersion = useAppVersion(t('locale'));
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -27,17 +32,17 @@ export default function ProfileScreen({ navigation }) {
   const handleExport = async () => {
     setExporting(true);
     try { await exportToCSV(); }
-    catch (e) { Alert.alert('Ошибка экспорта', e.message); }
+    catch (e) { Alert.alert(t('export_error_title'), e.message); }
     finally { setExporting(false); }
   };
 
   const handleClear = () => {
-    Alert.alert('Очистить все данные?', 'Все операции будут удалены безвозвратно. Категории останутся.', [
-      { text: 'Отмена', style: 'cancel' },
-      { text: 'Очистить', style: 'destructive', onPress: async () => {
+    Alert.alert(t('clear_all_title'), t('clear_all_msg'), [
+      { text: t('cancel'), style: 'cancel' },
+      { text: t('clear_all_btn'), style: 'destructive', onPress: async () => {
         setClearing(true);
-        try { await clearAllTransactions(); Alert.alert('Готово', 'Все операции удалены'); }
-        catch (e) { Alert.alert('Ошибка', e.message); }
+        try { await clearAllTransactions(); Alert.alert(t('done'), t('ops_removed')); }
+        catch (e) { Alert.alert(t('error'), e.message); }
         finally { setClearing(false); }
       }},
     ]);
@@ -47,18 +52,18 @@ export default function ProfileScreen({ navigation }) {
     try {
       const rows = await pickAndParseCSV();
       if (!rows) return;
-      if (rows.length === 0) { Alert.alert('Файл пустой', 'Не найдено ни одной операции'); return; }
+      if (rows.length === 0) { Alert.alert(t('file_empty'), t('file_empty_msg')); return; }
       setPreview(rows);
-    } catch (e) { Alert.alert('Ошибка чтения', e.message); }
+    } catch (e) { Alert.alert(t('read_error_title'), e.message); }
   };
 
   const handleConfirmImport = async () => {
     setImporting(true);
     try {
-      const count = await importRows(preview);
+      const count = await importRows(preview, currency.code);
       setPreview(null);
-      Alert.alert('Готово ✓', `Импортировано ${count} операций`);
-    } catch (e) { Alert.alert('Ошибка импорта', e.message); }
+      Alert.alert(`${t('done')} ✓`, `${t('imported_success_pre')} ${count} ${t('import_found_suf')}`);
+    } catch (e) { Alert.alert(t('import_error_title'), e.message); }
     finally { setImporting(false); }
   };
 
@@ -73,14 +78,14 @@ export default function ProfileScreen({ navigation }) {
       if (canShare) {
         await Sharing.shareAsync(fileUri, {
           mimeType: 'application/json',
-          dialogTitle: 'Сохранить резервную копию',
+          dialogTitle: t('backup_create'),
           UTI: 'public.json',
         });
       } else {
-        Alert.alert('Готово', `Файл сохранён: ${fileUri}`);
+        Alert.alert(t('done'), fileUri);
       }
     } catch (e) {
-      Alert.alert('Ошибка', `Не удалось создать резервную копию: ${e.message}`);
+      Alert.alert(t('backup_error_title'), e.message);
     } finally {
       setLoading(false);
     }
@@ -100,29 +105,29 @@ export default function ProfileScreen({ navigation }) {
       try {
         backup = JSON.parse(content);
       } catch {
-        Alert.alert('Ошибка', 'Файл повреждён или имеет неверный формат.');
+        Alert.alert(t('error'), t('file_corrupt'));
         return;
       }
 
       if (!backup.transactions || !backup.categories) {
-        Alert.alert('Ошибка', 'Файл не является резервной копией FinanceApp.');
+        Alert.alert(t('error'), t('not_backup_file'));
         return;
       }
 
       Alert.alert(
-        'Восстановить данные?',
-        `Найдено ${backup.transactions.length} операций и ${backup.categories.length} категорий.\n\nТекущие данные будут полностью заменены.`,
+        t('restore_confirm_title'),
+        `${t('import_found_pre')} ${backup.transactions.length} ${t('import_found_suf')}, ${backup.categories.length} ${t('categories').toLowerCase()}.\n\n${t('restore_replace_warning')}`,
         [
-          { text: 'Отмена', style: 'cancel' },
+          { text: t('cancel'), style: 'cancel' },
           {
-            text: 'Восстановить', style: 'destructive',
+            text: t('restore_btn'), style: 'destructive',
             onPress: async () => {
               setLoading(true);
               try {
                 await importBackupData(backup);
-                Alert.alert('Успешно', `Восстановлено ${backup.transactions.length} операций.`);
+                Alert.alert(t('done'), `${t('restore_success')} ${backup.transactions.length} ${t('import_found_suf')}`);
               } catch (e) {
-                Alert.alert('Ошибка', `Не удалось восстановить: ${e.message}`);
+                Alert.alert(t('restore_error_title'), e.message);
               } finally {
                 setLoading(false);
               }
@@ -131,7 +136,7 @@ export default function ProfileScreen({ navigation }) {
         ]
       );
     } catch (e) {
-      Alert.alert('Ошибка', `Не удалось открыть файл: ${e.message}`);
+      Alert.alert(t('open_error_title'), e.message);
     }
   };
 
@@ -152,40 +157,38 @@ export default function ProfileScreen({ navigation }) {
           <View style={s.avatar}>
             <Ionicons name="person" size={36} color={Colors.primary} />
           </View>
-          <Text style={s.userName}>Мой профиль</Text>
-          <Text style={s.userSub}>FinanceApp v{APP_VERSION}</Text>
+          <Text style={s.userName}>{t('my_profile')}</Text>
+          <Text style={s.userSub}>FinanceApp {appVersion}</Text>
         </LinearGradient>
 
-        {/* ── Данные ── */}
+        {/* ── Резервное копирование ── */}
         <SectionCard
-          title="Резервное копирование"
+          title={t('backup')}
           icon="cloud"
           color={Colors.primary}
           expanded={section === 'backup'}
           onToggle={() => setSection(section === 'backup' ? null : 'backup')}
         >
           <View style={s.backupBlock}>
-            <Text style={s.sectionSubtitle}>Локальный файл · JSON</Text>
+            <Text style={s.sectionSubtitle}>{t('backup_sub')}</Text>
 
             <View style={s.infoBox}>
               <Ionicons name="information-circle-outline" size={16} color={Colors.primary} />
-              <Text style={s.infoTxt}>
-                Данные сохраняются в файл на устройстве. Вы можете вручную загрузить его в Google Drive, iCloud или отправить в мессенджер.
-              </Text>
+              <Text style={s.infoTxt}>{t('backup_info')}</Text>
             </View>
 
             <BackupAction
               icon="cloud-upload"
-              label="Создать резервную копию"
-              sub="Экспорт всех данных в JSON-файл"
+              label={t('backup_create')}
+              sub={t('backup_create_sub')}
               color={Colors.primary}
               loading={loading}
               onPress={backupLocally}
             />
             <BackupAction
               icon="cloud-download"
-              label="Восстановить из файла"
-              sub="Импорт данных из JSON-файла"
+              label={t('backup_restore')}
+              sub={t('backup_restore_sub')}
               color={Colors.income}
               loading={loading}
               onPress={restoreLocally}
@@ -195,35 +198,33 @@ export default function ProfileScreen({ navigation }) {
 
         {/* ── Данные ── */}
         <SectionCard
-          title="Данные"
+          title={t('data')}
           icon="server-outline"
           color={Colors.income}
           expanded={section === 'data'}
           onToggle={() => setSection(section === 'data' ? null : 'data')}
         >
           <View style={s.dataBlock}>
-            <BackupAction icon="download-outline" label="Экспорт в CSV" sub="Сохранить все операции в файл" color={Colors.income} loading={exporting} onPress={handleExport} />
-            <BackupAction icon="cloud-upload-outline" label="Импорт из CSV" sub="Загрузить операции из файла" color={Colors.primary} loading={importing} onPress={handlePickImport} />
-            <BackupAction icon="trash-outline" label="Очистить данные" sub="Удалить все операции (категории останутся)" color={Colors.expense} loading={clearing} onPress={handleClear} />
+            <BackupAction icon="download-outline" label={t('export_csv')} sub={t('export_csv_sub')} color={Colors.income} loading={exporting} onPress={handleExport} />
+            <BackupAction icon="cloud-upload-outline" label={t('import_csv')} sub={t('import_csv_sub')} color={Colors.primary} loading={importing} onPress={handlePickImport} />
+            <BackupAction icon="trash-outline" label={t('clear_data')} sub={t('clear_data_sub')} color={Colors.expense} loading={clearing} onPress={handleClear} />
           </View>
           <View style={s.csvHint}>
             <Ionicons name="information-circle-outline" size={16} color={Colors.primary} />
-            <Text style={s.csvHintTxt}>Формат CSV: Дата, Тип, Сумма, Категория, Заметка{'\n'}Тип: «Доход» / «Расход» · Дата: ДД.ММ.ГГГГ</Text>
+            <Text style={s.csvHintTxt}>{t('csv_format_hint')}</Text>
           </View>
         </SectionCard>
 
         {/* ── Оценить нас ── */}
         <SectionCard
-          title="Оценить нас"
+          title={t('rate_us')}
           icon="star"
           color="#FF9F43"
           expanded={section === 'rate'}
           onToggle={() => setSection(section === 'rate' ? null : 'rate')}
         >
           <View style={s.rateBlock}>
-            <Text style={s.rateText}>
-              Если вам нравится FinanceApp, оставьте отзыв в Google Play — это помогает нам расти!
-            </Text>
+            <Text style={s.rateText}>{t('rate_text')}</Text>
             <View style={s.starsRow}>
               {[1,2,3,4,5].map(i => (
                 <Ionicons key={i} name="star" size={32} color="#FF9F43" />
@@ -233,14 +234,14 @@ export default function ProfileScreen({ navigation }) {
               style={s.rateBtn}
               onPress={() => Linking.openURL('https://play.google.com/store/apps')}
             >
-              <Text style={s.rateBtnTxt}>Оценить в Google Play</Text>
+              <Text style={s.rateBtnTxt}>{t('rate_btn')}</Text>
             </TouchableOpacity>
           </View>
         </SectionCard>
 
         {/* ── Служба поддержки ── */}
         <SectionCard
-          title="Служба поддержки"
+          title={t('support')}
           icon="headset"
           color="#00C48C"
           expanded={section === 'support'}
@@ -249,20 +250,20 @@ export default function ProfileScreen({ navigation }) {
           <View style={s.supportBlock}>
             <SupportRow
               icon="mail"
-              label="Написать нам"
+              label={t('support_email_label')}
               sub="support@financeapp.app"
               onPress={() => Linking.openURL('mailto:support@financeapp.app')}
             />
             <SupportRow
               icon="help-circle"
-              label="FAQ / Справочник"
-              sub="Часто задаваемые вопросы"
-              onPress={() => Alert.alert('FAQ', 'Раздел справки находится в разработке.')}
+              label={t('support_faq')}
+              sub={t('support_faq_sub')}
+              onPress={() => Alert.alert(t('support_faq_title'), t('support_faq_msg'))}
             />
             <SupportRow
               icon="bug"
-              label="Сообщить об ошибке"
-              sub="Помогите нам стать лучше"
+              label={t('support_bug')}
+              sub={t('support_bug_sub')}
               onPress={() => Linking.openURL('mailto:bugs@financeapp.app?subject=Bug%20Report')}
             />
           </View>
@@ -270,21 +271,19 @@ export default function ProfileScreen({ navigation }) {
 
         {/* ── О программе ── */}
         <SectionCard
-          title="О программе"
+          title={t('about')}
           icon="information-circle"
           color={Colors.textSecondary}
           expanded={section === 'about'}
           onToggle={() => setSection(section === 'about' ? null : 'about')}
         >
           <View style={s.aboutBlock}>
-            <AboutRow label="Версия"         value={APP_VERSION} />
-            <AboutRow label="Платформа"      value="Android (React Native + Expo)" />
-            <AboutRow label="База данных"    value="SQLite (локально, офлайн)" />
-            <AboutRow label="Разработчик"    value="FinanceApp Team" />
-            <AboutRow label="Дата выпуска"   value="2025" />
-            <Text style={s.aboutNote}>
-              Все данные хранятся только на вашем устройстве. Мы не собираем и не передаём личные данные.
-            </Text>
+            <AboutRow label={t('app_version')}    value={appVersion} />
+            <AboutRow label={t('about_platform')} value={t('about_platform_value')} />
+            <AboutRow label={t('about_db')}       value={t('about_db_value')} />
+            <AboutRow label={t('about_dev')}      value={t('about_dev_value')} />
+            <AboutRow label={t('about_release')}  value="2025" />
+            <Text style={s.aboutNote}>{t('about_note')}</Text>
           </View>
         </SectionCard>
 
@@ -295,18 +294,18 @@ export default function ProfileScreen({ navigation }) {
         <View style={s.overlay}>
           <View style={s.modal}>
             <View style={s.modalHeader}>
-              <Text style={s.modalTitle}>Предпросмотр импорта</Text>
+              <Text style={s.modalTitle}>{t('import_preview')}</Text>
               <TouchableOpacity onPress={() => setPreview(null)}>
                 <Ionicons name="close" size={24} color={Colors.text} />
               </TouchableOpacity>
             </View>
-            <Text style={s.modalSub}>Найдено {preview?.length || 0} операций</Text>
+            <Text style={s.modalSub}>{t('import_found_pre')} {preview?.length || 0} {t('import_found_suf')}</Text>
             <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
               {preview?.slice(0, 20).map((row, i) => (
                 <View key={i} style={s.previewRow}>
                   <View style={[s.previewDot, { backgroundColor: row.type === 'income' ? Colors.income : Colors.expense }]} />
                   <View style={{ flex: 1 }}>
-                    <Text style={s.previewCat}>{row.categoryName || 'Без категории'} · {row.date}</Text>
+                    <Text style={s.previewCat}>{row.categoryName || t('no_category')} · {row.date}</Text>
                     {row.note ? <Text style={s.previewNote}>{row.note}</Text> : null}
                   </View>
                   <Text style={[s.previewAmt, { color: row.type === 'income' ? Colors.income : Colors.expense }]}>
@@ -315,15 +314,15 @@ export default function ProfileScreen({ navigation }) {
                 </View>
               ))}
               {(preview?.length || 0) > 20 && (
-                <Text style={s.moreText}>...и ещё {preview.length - 20} операций</Text>
+                <Text style={s.moreText}>{t('import_more')} {preview.length - 20} {t('import_found_suf')}</Text>
               )}
             </ScrollView>
             <View style={s.modalBtns}>
               <TouchableOpacity style={s.cancelBtn} onPress={() => setPreview(null)}>
-                <Text style={s.cancelTxt}>Отмена</Text>
+                <Text style={s.cancelTxt}>{t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={s.confirmBtn} onPress={handleConfirmImport} disabled={importing}>
-                {importing ? <ActivityIndicator color="#fff" /> : <Text style={s.confirmTxt}>Импортировать</Text>}
+                {importing ? <ActivityIndicator color="#fff" /> : <Text style={s.confirmTxt}>{t('import_btn')}</Text>}
               </TouchableOpacity>
             </View>
           </View>

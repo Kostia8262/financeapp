@@ -92,7 +92,7 @@ export async function pickAndParseCSV() {
   return rows;
 }
 
-export async function importRows(rows) {
+export async function importRows(rows, currency = 'UAH') {
   const allCats = await getCategories();
   const catMap = {};
   for (const c of allCats) catMap[c.name.toLowerCase()] = c.id;
@@ -106,6 +106,7 @@ export async function importRows(rows) {
       categoryId: catId,
       note: row.note,
       date: row.date,
+      currency,
     });
     imported++;
   }
