@@ -1,6 +1,7 @@
 import { Colors } from './colors';
 
 export const Typography = {
+  heroBalance: { fontSize: 42, fontWeight: '800', letterSpacing: -1 },
   h1: { fontSize: 28, fontWeight: '800', color: Colors.text, letterSpacing: -0.5 },
   h2: { fontSize: 22, fontWeight: '800', color: Colors.text, letterSpacing: -0.5 },
   title: { fontSize: 18, fontWeight: '800', color: Colors.text },

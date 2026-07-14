@@ -407,7 +407,7 @@ const s = StyleSheet.create({
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', flex: 1 },
   currencyBadge: { backgroundColor: 'rgba(255,255,255,0.25)', paddingHorizontal: Spacing.sm, paddingVertical: 3, borderRadius: Radius.sm },
   currencyBadgeTxt: { fontSize: 11, color: '#fff', fontWeight: '700' },
-  heroBalance: { fontSize: 42, fontWeight: '800', letterSpacing: -1 },
+  heroBalance: { ...Typography.heroBalance },
   heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
   heroStats: {
     flexDirection: 'row', alignItems: 'center',

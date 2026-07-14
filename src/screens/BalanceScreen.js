@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { getInsights, getMonthlyTrend } from '../database/db';
 import { Colors } from '../theme/colors';
 import { Spacing } from '../theme/spacing';
+import { Typography } from '../theme/typography';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import Card from '../components/ui/Card';
@@ -289,7 +290,7 @@ const s = StyleSheet.create({
 
   heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: Spacing.xl },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', marginBottom: 4 },
-  heroBalance: { fontSize: 42, fontWeight: '800', color: '#fff', letterSpacing: -1 },
+  heroBalance: { ...Typography.heroBalance, color: '#fff' },
   heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
   heroStats: {
     flexDirection: 'row', alignItems: 'center',
