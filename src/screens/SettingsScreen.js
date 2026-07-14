@@ -6,6 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
+import { Spacing } from '../theme/spacing';
+import { Radius } from '../theme/radius';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import { CURRENCIES } from '../utils/currencies';
@@ -114,42 +116,42 @@ const s = StyleSheet.create({
   sectionLabel: { ...Typography.sectionLabel, marginHorizontal: 20, marginBottom: 10 },
 
   // Currency picker
-  currencyCard: { marginHorizontal: 16, marginBottom: 20 },
-  activeCurrencyRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16, backgroundColor: Colors.primaryLight, borderRadius: 14, padding: 12 },
+  currencyCard: { marginHorizontal: Spacing.lg, marginBottom: Spacing.xl },
+  activeCurrencyRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.lg, backgroundColor: Colors.primaryLight, borderRadius: Radius.md, padding: Spacing.md },
   activeCurrencyFlag: { fontSize: 28 },
   activeCurrencyName: { fontSize: 15, fontWeight: '700', color: Colors.text },
   activeCurrencyHint: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
-  activeCurrencyBadge: { backgroundColor: Colors.primary, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 },
+  activeCurrencyBadge: { backgroundColor: Colors.primary, borderRadius: Radius.sm, paddingHorizontal: 10, paddingVertical: 5 },
   activeCurrencyCode: { color: '#fff', fontSize: 13, fontWeight: '800' },
-  currencyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  currencyPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: Colors.bgInput, borderWidth: 1.5, borderColor: 'transparent' },
+  currencyGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
+  currencyPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: 12, backgroundColor: Colors.bgInput, borderWidth: 1.5, borderColor: 'transparent' },
   currencyPillActive: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
   currencyPillFlag: { fontSize: 14 },
   currencyPillSymbol: { fontSize: 14, fontWeight: '800', color: Colors.text },
   currencyPillCode: { fontSize: 11, fontWeight: '600', color: Colors.textSecondary },
-  card: { marginHorizontal: 16, marginBottom: 20 },
+  card: { marginHorizontal: Spacing.lg, marginBottom: Spacing.xl },
   divider: { height: 1, backgroundColor: Colors.borderLight, marginLeft: 72 },
 
-  langGrid: { padding: 16, gap: 8 },
+  langGrid: { padding: Spacing.lg, gap: Spacing.sm },
   langPill: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    paddingHorizontal: 14, paddingVertical: 12,
-    borderRadius: 14, backgroundColor: Colors.bgInput,
+    paddingHorizontal: 14, paddingVertical: Spacing.md,
+    borderRadius: Radius.md, backgroundColor: Colors.bgInput,
     borderWidth: 1.5, borderColor: 'transparent',
   },
   langPillActive: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
   langFlag: { fontSize: 22 },
-  langName: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.text },
+  langName: { ...Typography.body, flex: 1 },
   langCheck: {
     width: 22, height: 22, borderRadius: 11,
     backgroundColor: Colors.primaryLight,
     alignItems: 'center', justifyContent: 'center',
   },
 
-  aboutContent: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 14 },
+  aboutContent: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg, gap: 14 },
   appIconWrap: { width: 50, height: 50, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   appName: { fontSize: 16, fontWeight: '700', color: Colors.text },
   appVersion: { fontSize: 12, color: Colors.textMuted, marginTop: 2 },
-  offlineRow: { flexDirection: 'row', alignItems: 'flex-start', padding: 16, gap: 10 },
+  offlineRow: { flexDirection: 'row', alignItems: 'flex-start', padding: Spacing.lg, gap: 10 },
   offlineText: { flex: 1, fontSize: 13, color: Colors.textSecondary, lineHeight: 18 },
 });

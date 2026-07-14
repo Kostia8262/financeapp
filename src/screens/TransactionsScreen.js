@@ -10,6 +10,8 @@ import { getTransactions, deleteTransaction } from '../database/db';
 import { formatDate } from '../utils/format';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
+import { Spacing } from '../theme/spacing';
+import { Radius } from '../theme/radius';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import Card from '../components/ui/Card';
@@ -182,26 +184,26 @@ function LinearGradientInline() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 12 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.xl, paddingTop: 56, paddingBottom: Spacing.md },
   title: { ...Typography.h1 },
-  currBadge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
+  currBadge: { paddingHorizontal: Spacing.sm, paddingVertical: Spacing.xs, borderRadius: Radius.sm },
   currBadgeTxt: { fontSize: 11, fontWeight: '700' },
   addBtn: { borderRadius: 20, overflow: 'hidden' },
 
-  searchWrap: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginBottom: 12, backgroundColor: Colors.bgCard, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12, gap: 8, borderWidth: 1.5, borderColor: Colors.border },
+  searchWrap: { flexDirection: 'row', alignItems: 'center', marginHorizontal: Spacing.lg, marginBottom: Spacing.md, backgroundColor: Colors.bgCard, borderRadius: Radius.md, paddingHorizontal: 14, paddingVertical: Spacing.md, gap: Spacing.sm, borderWidth: 1.5, borderColor: Colors.border },
   searchInput: { flex: 1, fontSize: 14, color: Colors.text },
 
-  filterRow: { flexDirection: 'row', paddingHorizontal: 16, marginBottom: 4, gap: 6, alignItems: 'center' },
-  filterBtn: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: Colors.bgCard, borderWidth: 1.5, borderColor: Colors.border },
+  filterRow: { flexDirection: 'row', paddingHorizontal: Spacing.lg, marginBottom: 4, gap: 6, alignItems: 'center' },
+  filterBtn: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: Radius.xl, backgroundColor: Colors.bgCard, borderWidth: 1.5, borderColor: Colors.border },
   filterActive: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
   filterTxt: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600' },
   filterTxtActive: { color: Colors.primary },
   filterSummary: { flex: 1, alignItems: 'flex-end' },
   summaryTxt: { fontSize: 12, fontWeight: '600' },
 
-  dateHeader: { fontSize: 12, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, paddingTop: 16, paddingBottom: 8 },
+  dateHeader: { fontSize: 12, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, paddingTop: Spacing.lg, paddingBottom: Spacing.sm },
 
-  item: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 12 },
+  item: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.sm, gap: Spacing.md },
   icon: { width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   info: { flex: 1 },
   category: { fontSize: 14, fontWeight: '600', color: Colors.text },
@@ -209,5 +211,5 @@ const s = StyleSheet.create({
   right: { alignItems: 'flex-end', gap: 4 },
   amount: { fontSize: 15, fontWeight: '700' },
   itemActions: { flexDirection: 'row', gap: 6 },
-  actionBtn: { padding: 4 },
+  actionBtn: { padding: Spacing.xs },
 });

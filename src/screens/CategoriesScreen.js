@@ -8,6 +8,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { getCategories, addCategory, updateCategory, deleteCategory } from '../database/db';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
+import { Spacing } from '../theme/spacing';
+import { Radius } from '../theme/radius';
 import { useLanguage } from '../context/LanguageContext';
 import Card from '../components/ui/Card';
 import EmptyState from '../components/ui/EmptyState';
@@ -198,27 +200,27 @@ export default function CategoriesScreen() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 56, paddingBottom: 12 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.xl, paddingTop: 56, paddingBottom: Spacing.md },
   title: { ...Typography.h1 },
   addBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
 
-  tabWrap: { flexDirection: 'row', marginHorizontal: 16, backgroundColor: Colors.bgCard, borderRadius: 14, padding: 4, marginBottom: 4, borderWidth: 1, borderColor: Colors.border },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 10 },
+  tabWrap: { flexDirection: 'row', marginHorizontal: Spacing.lg, backgroundColor: Colors.bgCard, borderRadius: Radius.md, padding: 4, marginBottom: 4, borderWidth: 1, borderColor: Colors.border },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: Radius.sm },
   tabTxt: { fontSize: 14, fontWeight: '700', color: Colors.textSecondary },
 
-  item: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 12 },
+  item: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.sm, gap: Spacing.md },
   itemIcon: { width: 46, height: 46, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   itemName: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.text },
   actionBtn: { padding: 8 },
 
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  modal: { backgroundColor: Colors.bgCard, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  modalTitle: { fontSize: 18, fontWeight: '800', color: Colors.text },
+  modal: { backgroundColor: Colors.bgCard, borderTopLeftRadius: Radius.xxl, borderTopRightRadius: Radius.xxl, padding: Spacing.xl },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg },
+  modalTitle: { ...Typography.title },
 
-  input: { backgroundColor: Colors.bgInput, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 13, color: Colors.text, fontSize: 15, marginBottom: 16, borderWidth: 1.5, borderColor: Colors.border },
+  input: { backgroundColor: Colors.bgInput, borderRadius: Radius.md, paddingHorizontal: Spacing.lg, paddingVertical: 13, color: Colors.text, fontSize: 15, marginBottom: Spacing.lg, borderWidth: 1.5, borderColor: Colors.border },
 
-  preview: { alignItems: 'center', marginBottom: 16, gap: 8 },
+  preview: { alignItems: 'center', marginBottom: Spacing.lg, gap: Spacing.sm },
   previewIcon: { width: 60, height: 60, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   previewName: { fontSize: 15, fontWeight: '700' },
 
@@ -228,12 +230,12 @@ const s = StyleSheet.create({
   colorDot: { width: 32, height: 32, borderRadius: 16 },
   colorSelected: { borderWidth: 3, borderColor: Colors.white, transform: [{ scale: 1.1 }] },
 
-  iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
+  iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.xl },
   iconBtn: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.bgInput, borderWidth: 1.5, borderColor: Colors.border },
 
   modalBtns: { flexDirection: 'row', gap: 10 },
-  cancelBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: Colors.bgMuted },
+  cancelBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.bgMuted },
   cancelTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
-  confirmBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: Colors.primary },
+  confirmBtn: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: Radius.md, backgroundColor: Colors.primary },
   confirmTxt: { fontSize: 15, fontWeight: '700', color: '#fff' },
 });
