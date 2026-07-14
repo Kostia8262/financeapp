@@ -5,7 +5,6 @@ import {
 } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import {
   getRangeBalance, getTransactions, getCategoryStats, getCategories,
 } from '../database/db';
@@ -15,6 +14,10 @@ import DonutChart from '../components/DonutChart';
 import CalendarModal from '../components/CalendarModal';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
+import Card from '../components/ui/Card';
+import GradientHero from '../components/ui/GradientHero';
+import HeroStat from '../components/ui/HeroStat';
+import EmptyState from '../components/ui/EmptyState';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const SIDE_PAD = 12;
@@ -283,11 +286,7 @@ export default function HomeScreen({ navigation }) {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
       >
         {/* ── Hero ── */}
-        <LinearGradient
-          colors={['#6C47FF', '#9B6BFF', '#C084FC']}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={s.hero}
-        >
+        <GradientHero>
           <View style={s.heroTop}>
             <View style={{ flex: 1 }}>
               <View style={s.heroLabelRow}>
@@ -307,13 +306,13 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           <View style={s.heroStats}>
-            <HeroStat icon="arrow-up"    iconBg="rgba(0,196,140,0.25)"  iconColor="#00E6A8" label={t('income')}   value={monthly.income} />
+            <HeroStat icon="arrow-up"    iconBg="rgba(0,196,140,0.25)"  iconColor="#00E6A8" label={t('income')}   value={fmtC(monthly.income)} />
             <View style={s.heroDivider} />
-            <HeroStat icon="arrow-down"  iconBg="rgba(255,90,95,0.25)"  iconColor="#FF8A8E" label={t('expense')}  value={monthly.expense} />
+            <HeroStat icon="arrow-down"  iconBg="rgba(255,90,95,0.25)"  iconColor="#FF8A8E" label={t('expense')}  value={fmtC(monthly.expense)} />
             <View style={s.heroDivider} />
-            <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor="#fff"    label={t('surplus')}  value={null} text={`${savingsRate}%`} />
+            <HeroStat icon="trending-up" iconBg="rgba(255,255,255,0.2)" iconColor="#fff"    label={t('surplus')}  value={`${savingsRate}%`} />
           </View>
-        </LinearGradient>
+        </GradientHero>
 
         {/* ── Swipeable category section ── */}
         <Animated.View
@@ -415,19 +414,13 @@ export default function HomeScreen({ navigation }) {
           </View>
 
           {recent.length === 0 ? (
-            <View style={s.empty}>
-              <View style={s.emptyIcon}>
-                <Ionicons name="receipt-outline" size={32} color={Colors.primary} />
-              </View>
-              <Text style={s.emptyTitle}>{t('no_ops')}</Text>
-              <Text style={s.emptyText}>{t('tap_to_add')}</Text>
-            </View>
+            <EmptyState icon="receipt-outline" title={t('no_ops')} subtitle={t('tap_to_add')} />
           ) : (
-            <View style={s.txCard}>
+            <Card>
               {recent.map((tx, i) => (
                 <TxRow key={tx.id} item={tx} last={i === recent.length - 1} noCategory={t('no_category')} />
               ))}
-            </View>
+            </Card>
           )}
         </View>
       </ScrollView>
@@ -574,23 +567,6 @@ function CatChip({ cat, width, onPress }) {
   );
 }
 
-function HeroStat({ icon, iconBg, iconColor, label, value, text }) {
-  const { fmtC } = useCurrency();
-  return (
-    <View style={s.heroStat}>
-      <View style={[s.heroStatIcon, { backgroundColor: iconBg }]}>
-        <Ionicons name={icon} size={14} color={iconColor} />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={s.heroStatLabel}>{label}</Text>
-        <Text style={s.heroStatValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>
-          {text ?? fmtC(value)}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
 function TxRow({ item, last, noCategory }) {
   const { fmtC } = useCurrency();
   const isIncome = item.type === 'income';
@@ -618,10 +594,6 @@ function TxRow({ item, last, noCategory }) {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 
-  hero: {
-    paddingTop: 56, paddingBottom: 24, paddingHorizontal: 20,
-    borderBottomLeftRadius: 32, borderBottomRightRadius: 32,
-  },
   heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20, gap: 12 },
   heroLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', flex: 1 },
@@ -639,10 +611,6 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: 18, padding: 14,
   },
-  heroStat: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, overflow: 'hidden' },
-  heroStatIcon: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  heroStatLabel: { fontSize: 10, color: 'rgba(255,255,255,0.65)', fontWeight: '500' },
-  heroStatValue: { fontSize: 13, color: '#fff', fontWeight: '700' },
   heroDivider: { width: 1, height: 32, backgroundColor: 'rgba(255,255,255,0.18)', marginHorizontal: 4 },
 
   monthRow: {
@@ -679,11 +647,6 @@ const s = StyleSheet.create({
   chipCircle: { alignItems: 'center', justifyContent: 'center' },
   chipAmt: { fontSize: 11, fontWeight: '700', textAlign: 'center', width: '100%' },
 
-  txCard: {
-    backgroundColor: Colors.bgCard, borderRadius: 20, overflow: 'hidden',
-    elevation: 3, shadowColor: Colors.shadowDark,
-    shadowOffset: { width: 0, height: 2 }, shadowOpacity: 1, shadowRadius: 8,
-  },
   txRow: {
     flexDirection: 'row', alignItems: 'center',
     paddingVertical: 12, paddingHorizontal: 16,
@@ -696,15 +659,6 @@ const s = StyleSheet.create({
   txRight: { alignItems: 'flex-end' },
   txAmount: { fontSize: 14, fontWeight: '700' },
   txDate: { fontSize: 11, color: Colors.textMuted, marginTop: 2 },
-
-  empty: { alignItems: 'center', paddingVertical: 40, gap: 8 },
-  emptyIcon: {
-    width: 64, height: 64, borderRadius: 20,
-    backgroundColor: Colors.primaryLight,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 4,
-  },
-  emptyTitle: { fontSize: 16, fontWeight: '700', color: Colors.text },
-  emptyText: { fontSize: 13, color: Colors.textMuted },
 
   overlay: { flex: 1, justifyContent: 'flex-end' },
   overlayBg: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' },

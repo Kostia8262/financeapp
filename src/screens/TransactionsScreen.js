@@ -11,6 +11,8 @@ import { formatDate } from '../utils/format';
 import { Colors } from '../theme/colors';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
+import Card from '../components/ui/Card';
+import EmptyState from '../components/ui/EmptyState';
 
 export default function TransactionsScreen({ navigation }) {
   const { currency, fmt } = useCurrency();
@@ -69,7 +71,7 @@ export default function TransactionsScreen({ navigation }) {
     }
     const isIncome = item.type === 'income';
     return (
-      <View style={s.item}>
+      <Card style={s.item} variant="row" radius={16} padding={12}>
         <View style={[s.icon, { backgroundColor: (item.category_color || Colors.primary) + '18' }]}>
           <Ionicons name={item.category_icon || 'ellipse'} size={20} color={item.category_color || Colors.primary} />
         </View>
@@ -93,7 +95,7 @@ export default function TransactionsScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </Card>
     );
   };
 
@@ -161,13 +163,7 @@ export default function TransactionsScreen({ navigation }) {
         renderItem={renderItem}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
         ListEmptyComponent={
-          <View style={s.empty}>
-            <View style={s.emptyIcon}>
-              <Ionicons name="receipt-outline" size={32} color={Colors.primary} />
-            </View>
-            <Text style={s.emptyTitle}>{t('no_transactions')}</Text>
-            <Text style={s.emptyText}>{t('add_first')}</Text>
-          </View>
+          <EmptyState icon="receipt-outline" title={t('no_transactions')} subtitle={t('add_first')} />
         }
         showsVerticalScrollIndicator={false}
       />
@@ -204,7 +200,7 @@ const s = StyleSheet.create({
 
   dateHeader: { fontSize: 12, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, paddingTop: 16, paddingBottom: 8 },
 
-  item: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.bgCard, borderRadius: 16, padding: 12, marginBottom: 8, gap: 12, shadowColor: Colors.shadowDark, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 1, shadowRadius: 4, elevation: 2 },
+  item: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 12 },
   icon: { width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   info: { flex: 1 },
   category: { fontSize: 14, fontWeight: '600', color: Colors.text },
@@ -213,9 +209,4 @@ const s = StyleSheet.create({
   amount: { fontSize: 15, fontWeight: '700' },
   itemActions: { flexDirection: 'row', gap: 6 },
   actionBtn: { padding: 4 },
-
-  empty: { alignItems: 'center', paddingVertical: 60, gap: 8 },
-  emptyIcon: { width: 64, height: 64, borderRadius: 20, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
-  emptyTitle: { fontSize: 16, fontWeight: '700', color: Colors.text },
-  emptyText: { fontSize: 13, color: Colors.textMuted },
 });

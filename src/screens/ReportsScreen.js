@@ -5,12 +5,16 @@ import {
 } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { getCategoryStats, getExtendedStats, getDailyDataBoth } from '../database/db';
 import { Colors } from '../theme/colors';
+import { Shadows } from '../theme/shadows';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import CalendarModal from '../components/CalendarModal';
+import Card from '../components/ui/Card';
+import GradientHero from '../components/ui/GradientHero';
+import HeroStat from '../components/ui/HeroStat';
+import EmptyState from '../components/ui/EmptyState';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -152,11 +156,7 @@ export default function ReportsScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
 
         {/* Hero */}
-        <LinearGradient
-          colors={['#6C47FF', '#9B6BFF', '#C084FC']}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={s.hero}
-        >
+        <GradientHero>
           <View style={s.heroTop}>
             <View style={{ flex: 1 }}>
               <View style={s.heroLabelRow}>
@@ -179,7 +179,7 @@ export default function ReportsScreen() {
             <View style={s.heroDivider} />
             <HeroStat icon="arrow-down" iconBg="rgba(255,90,95,0.25)" iconColor="#FF8A8E" label={t('expense')} value={fmtC(totals.expense)} />
           </View>
-        </LinearGradient>
+        </GradientHero>
 
         {/* Period selector */}
         <View style={s.monthRow}>
@@ -220,7 +220,7 @@ export default function ReportsScreen() {
 
         {/* Daily bar chart */}
         {dailyBothBars.length > 0 && (
-          <View style={s.chartCard}>
+          <Card style={s.chartCard} variant="row" padding={16}>
             <View style={s.chartBars}>
               {dailyBothBars.map((d, i) => {
                 const incH = d.income  > 0 ? Math.max((d.income  / maxBothBar) * 80, 3) : 0;
@@ -244,7 +244,7 @@ export default function ReportsScreen() {
               <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.income  }]} /><Text style={s.legTxt}>{t('income')}</Text></View>
               <View style={s.legItem}><View style={[s.legDot, { backgroundColor: Colors.expense }]} /><Text style={s.legTxt}>{t('expense')}</Text></View>
             </View>
-          </View>
+          </Card>
         )}
 
         {/* Stats row */}
@@ -256,19 +256,13 @@ export default function ReportsScreen() {
 
         {/* Category breakdown */}
         {stats.length === 0 ? (
-          <View style={s.empty}>
-            <View style={s.emptyIcon}>
-              <Ionicons name="bar-chart-outline" size={32} color={Colors.primary} />
-            </View>
-            <Text style={s.emptyTitle}>{t('no_data')}</Text>
-            <Text style={s.emptyText}>{t('add_ops_period')}</Text>
-          </View>
+          <EmptyState icon="bar-chart-outline" title={t('no_data')} subtitle={t('add_ops_period')} />
         ) : (
           <View style={s.catList}>
             {stats.map(item => {
               const pct = total > 0 ? item.total / total : 0;
               return (
-                <View key={item.id} style={s.catRow}>
+                <Card key={item.id} style={s.catRow} variant="row" radius={16} padding={14}>
                   <View style={[s.catIcon, { backgroundColor: item.color + '18' }]}>
                     <Ionicons name={item.icon} size={20} color={item.color} />
                   </View>
@@ -282,7 +276,7 @@ export default function ReportsScreen() {
                     </View>
                     <Text style={s.catMeta}>{(pct * 100).toFixed(1)}%  &middot;  {item.count} {t('ops_suffix')}</Text>
                   </View>
-                </View>
+                </Card>
               );
             })}
           </View>
@@ -368,20 +362,6 @@ function AnalyticsPeriodSheet({ period, anchor, months, locale, onSelect, onClos
 
 // ─── Sub-components ───────────────────────────────────────────
 
-function HeroStat({ icon, iconBg, iconColor, label, value }) {
-  return (
-    <View style={s.heroStat}>
-      <View style={[s.heroStatIcon, { backgroundColor: iconBg }]}>
-        <Ionicons name={icon} size={14} color={iconColor} />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={s.heroStatLabel}>{label}</Text>
-        <Text style={s.heroStatValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>{value}</Text>
-      </View>
-    </View>
-  );
-}
-
 function ToggleCard({ label, value, color, lightBg, active, onPress }) {
   const { fmtC } = useCurrency();
   return (
@@ -405,12 +385,12 @@ function ToggleCard({ label, value, color, lightBg, active, onPress }) {
 function StatPill({ label, value, color }) {
   const { fmtC } = useCurrency();
   return (
-    <View style={s.statPill}>
+    <Card style={s.statPill} variant="row" radius={16} padding={12}>
       <Text style={s.statLabel}>{label}</Text>
       <Text style={[s.statValue, { color }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>
         {fmtC(value)}
       </Text>
-    </View>
+    </Card>
   );
 }
 
@@ -419,10 +399,6 @@ function StatPill({ label, value, color }) {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 
-  hero: {
-    paddingTop: 56, paddingBottom: 24, paddingHorizontal: 20,
-    borderBottomLeftRadius: 32, borderBottomRightRadius: 32,
-  },
   heroTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20, gap: 12 },
   heroLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '500', flex: 1 },
@@ -435,10 +411,6 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: 18, padding: 14,
   },
-  heroStat: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, overflow: 'hidden' },
-  heroStatIcon: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  heroStatLabel: { fontSize: 10, color: 'rgba(255,255,255,0.65)', fontWeight: '500' },
-  heroStatValue: { fontSize: 13, color: '#fff', fontWeight: '700' },
   heroDivider: { width: 1, height: 32, backgroundColor: 'rgba(255,255,255,0.18)', marginHorizontal: 4 },
 
   monthRow: {
@@ -467,8 +439,7 @@ const s = StyleSheet.create({
   toggleCard: {
     flex: 1, borderRadius: 20, padding: 18,
     justifyContent: 'center', gap: 4, minHeight: 90,
-    elevation: 3, shadowColor: Colors.shadowDark,
-    shadowOffset: { width: 0, height: 2 }, shadowOpacity: 1, shadowRadius: 8,
+    ...Shadows.card,
   },
   toggleLabel: { fontSize: 13, fontWeight: '600' },
   toggleAmt:   { fontSize: 22, fontWeight: '800', letterSpacing: -0.5 },
@@ -481,9 +452,6 @@ const s = StyleSheet.create({
 
   chartCard: {
     marginHorizontal: 16, marginBottom: 14,
-    backgroundColor: Colors.bgCard, borderRadius: 20,
-    padding: 16, elevation: 2, shadowColor: Colors.shadowDark,
-    shadowOffset: { width: 0, height: 1 }, shadowOpacity: 1, shadowRadius: 4,
   },
   chartBars:   { flexDirection: 'row', alignItems: 'flex-end', gap: 2, height: 100 },
   barCol:      { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 4 },
@@ -498,22 +466,12 @@ const s = StyleSheet.create({
   legTxt:      { fontSize: 12, color: Colors.textSecondary },
 
   statsRow: { flexDirection: 'row', marginHorizontal: 16, gap: 8, marginBottom: 14 },
-  statPill: {
-    flex: 1, backgroundColor: Colors.bgCard, borderRadius: 16,
-    padding: 12, alignItems: 'center', gap: 4,
-    elevation: 2, shadowColor: Colors.shadowDark,
-    shadowOffset: { width: 0, height: 1 }, shadowOpacity: 1, shadowRadius: 4,
-  },
+  statPill: { flex: 1, alignItems: 'center', gap: 4 },
   statLabel: { fontSize: 10, fontWeight: '600', color: Colors.textMuted, textAlign: 'center' },
   statValue: { fontSize: 14, fontWeight: '800', letterSpacing: -0.3, textAlign: 'center' },
 
   catList: { marginHorizontal: 16, gap: 8 },
-  catRow: {
-    flexDirection: 'row', gap: 12, backgroundColor: Colors.bgCard,
-    borderRadius: 16, padding: 14,
-    elevation: 2, shadowColor: Colors.shadowDark,
-    shadowOffset: { width: 0, height: 1 }, shadowOpacity: 1, shadowRadius: 4,
-  },
+  catRow: { flexDirection: 'row', gap: 12 },
   catIcon:  { width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
   catBody:  { flex: 1 },
   catTop:   { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
@@ -523,14 +481,6 @@ const s = StyleSheet.create({
   trackFill:{ height: 6, borderRadius: 3 },
   catMeta:  { fontSize: 11, color: Colors.textMuted },
 
-  empty: { alignItems: 'center', paddingVertical: 40, gap: 8 },
-  emptyIcon: {
-    width: 64, height: 64, borderRadius: 20,
-    backgroundColor: Colors.primaryLight,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 4,
-  },
-  emptyTitle: { fontSize: 16, fontWeight: '700', color: Colors.text },
-  emptyText:  { fontSize: 13, color: Colors.textMuted },
 });
 
 const ps = StyleSheet.create({

@@ -4,7 +4,6 @@ import {
   Alert, StatusBar, Linking, ActivityIndicator, Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
@@ -15,6 +14,8 @@ import { Colors } from '../theme/colors';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppVersion } from '../utils/version';
+import Card from '../components/ui/Card';
+import GradientHero from '../components/ui/GradientHero';
 
 const BACKUP_FILENAME = 'FinanceApp_Backup.json';
 
@@ -146,11 +147,7 @@ export default function ProfileScreen({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
 
         {/* ── Header ── */}
-        <LinearGradient
-          colors={['#6C47FF', '#9B6BFF', '#C084FC']}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={s.hero}
-        >
+        <GradientHero style={s.hero}>
           <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()}>
             <Ionicons name="chevron-back" size={22} color="#fff" />
           </TouchableOpacity>
@@ -159,7 +156,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
           <Text style={s.userName}>{t('my_profile')}</Text>
           <Text style={s.userSub}>FinanceApp {appVersion}</Text>
-        </LinearGradient>
+        </GradientHero>
 
         {/* ── Резервное копирование ── */}
         <SectionCard
@@ -336,7 +333,7 @@ export default function ProfileScreen({ navigation }) {
 
 function SectionCard({ title, icon, color, children, expanded, onToggle }) {
   return (
-    <View style={s.sectionCard}>
+    <Card style={s.sectionCard}>
       <TouchableOpacity style={s.sectionHeader} onPress={onToggle} activeOpacity={0.75}>
         <View style={[s.sectionIcon, { backgroundColor: color + '18' }]}>
           <Ionicons name={icon} size={20} color={color} />
@@ -345,7 +342,7 @@ function SectionCard({ title, icon, color, children, expanded, onToggle }) {
         <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={Colors.textMuted} />
       </TouchableOpacity>
       {expanded && <View style={s.sectionBody}>{children}</View>}
-    </View>
+    </Card>
   );
 }
 
@@ -397,9 +394,8 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
 
   hero: {
-    paddingTop: 60, paddingBottom: 32, paddingHorizontal: 20,
-    alignItems: 'center', borderBottomLeftRadius: 32, borderBottomRightRadius: 32,
-    marginBottom: 16,
+    paddingTop: 60, paddingBottom: 32,
+    alignItems: 'center', marginBottom: 16,
   },
   backBtn: {
     position: 'absolute', top: 56, left: 16,
@@ -417,10 +413,6 @@ const s = StyleSheet.create({
 
   sectionCard: {
     marginHorizontal: 16, marginBottom: 10,
-    backgroundColor: Colors.bgCard, borderRadius: 20,
-    elevation: 3, shadowColor: Colors.shadowDark,
-    shadowOffset: { width: 0, height: 2 }, shadowOpacity: 1, shadowRadius: 8,
-    overflow: 'hidden',
   },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12 },
   sectionIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },

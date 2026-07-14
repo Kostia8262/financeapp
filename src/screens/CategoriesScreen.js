@@ -8,6 +8,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { getCategories, addCategory, updateCategory, deleteCategory } from '../database/db';
 import { Colors } from '../theme/colors';
 import { useLanguage } from '../context/LanguageContext';
+import Card from '../components/ui/Card';
+import EmptyState from '../components/ui/EmptyState';
 
 const ICONS = [
   'fast-food', 'car', 'home', 'medkit', 'game-controller', 'shirt',
@@ -107,7 +109,7 @@ export default function CategoriesScreen() {
         keyExtractor={item => String(item.id)}
         contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
         renderItem={({ item }) => (
-          <View style={s.item}>
+          <Card style={s.item} variant="row" radius={16} padding={14}>
             <View style={[s.itemIcon, { backgroundColor: item.color + '18' }]}>
               <Ionicons name={item.icon} size={22} color={item.color} />
             </View>
@@ -118,16 +120,10 @@ export default function CategoriesScreen() {
             <TouchableOpacity onPress={() => handleDelete(item.id, item.name)} style={s.actionBtn}>
               <Ionicons name="trash-outline" size={17} color={Colors.textMuted} />
             </TouchableOpacity>
-          </View>
+          </Card>
         )}
         ListEmptyComponent={
-          <View style={s.empty}>
-            <View style={s.emptyIcon}>
-              <Ionicons name="grid-outline" size={32} color={Colors.primary} />
-            </View>
-            <Text style={s.emptyTitle}>{t('no_cats')}</Text>
-            <Text style={s.emptyText}>{t('tap_plus_to_add')}</Text>
-          </View>
+          <EmptyState icon="grid-outline" title={t('no_cats')} subtitle={t('tap_plus_to_add')} />
         }
       />
 
@@ -209,15 +205,10 @@ const s = StyleSheet.create({
   tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 10 },
   tabTxt: { fontSize: 14, fontWeight: '700', color: Colors.textSecondary },
 
-  item: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.bgCard, borderRadius: 16, padding: 14, marginBottom: 8, gap: 12, shadowColor: Colors.shadowDark, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 1, shadowRadius: 4, elevation: 2 },
+  item: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 12 },
   itemIcon: { width: 46, height: 46, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   itemName: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.text },
   actionBtn: { padding: 8 },
-
-  empty: { alignItems: 'center', paddingVertical: 60, gap: 8 },
-  emptyIcon: { width: 64, height: 64, borderRadius: 20, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
-  emptyTitle: { fontSize: 16, fontWeight: '700', color: Colors.text },
-  emptyText: { fontSize: 13, color: Colors.textMuted },
 
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   modal: { backgroundColor: Colors.bgCard, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 },

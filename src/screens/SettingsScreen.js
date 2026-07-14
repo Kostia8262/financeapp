@@ -9,6 +9,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import { CURRENCIES } from '../utils/currencies';
 import { useAppVersion } from '../utils/version';
+import Card from '../components/ui/Card';
 
 export default function SettingsScreen() {
   const { currency, setCurrency } = useCurrency();
@@ -23,7 +24,7 @@ export default function SettingsScreen() {
 
         {/* Currency section */}
         <Text style={s.sectionLabel}>{t('currency_account')}</Text>
-        <View style={s.currencyCard}>
+        <Card style={s.currencyCard} padding={16}>
           <View style={s.activeCurrencyRow}>
             <Text style={s.activeCurrencyFlag}>{currency.flag}</Text>
             <View style={{ flex: 1 }}>
@@ -55,11 +56,11 @@ export default function SettingsScreen() {
               );
             })}
           </View>
-        </View>
+        </Card>
 
         {/* Language section */}
         <Text style={s.sectionLabel}>{t('language')}</Text>
-        <View style={s.card}>
+        <Card style={s.card}>
           <View style={s.langGrid}>
             {LANGUAGES.map(l => {
               const isActive = l.code === lang;
@@ -81,11 +82,11 @@ export default function SettingsScreen() {
               );
             })}
           </View>
-        </View>
+        </Card>
 
         {/* About */}
         <Text style={s.sectionLabel}>{t('about_app')}</Text>
-        <View style={s.card}>
+        <Card style={s.card}>
           <View style={s.aboutContent}>
             <LinearGradient colors={['#6C47FF', '#9B6BFF']} style={s.appIconWrap}>
               <Ionicons name="wallet" size={28} color="#fff" />
@@ -100,7 +101,7 @@ export default function SettingsScreen() {
             <Ionicons name="shield-checkmark-outline" size={18} color={Colors.income} />
             <Text style={s.offlineText}>{t('offline_notice')}</Text>
           </View>
-        </View>
+        </Card>
       </ScrollView>
     </View>
   );
@@ -112,7 +113,7 @@ const s = StyleSheet.create({
   sectionLabel: { fontSize: 12, fontWeight: '700', color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.8, marginHorizontal: 20, marginBottom: 10 },
 
   // Currency picker
-  currencyCard: { marginHorizontal: 16, marginBottom: 20, backgroundColor: Colors.bgCard, borderRadius: 20, overflow: 'hidden', elevation: 3, shadowColor: Colors.shadowDark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 1, shadowRadius: 8, padding: 16 },
+  currencyCard: { marginHorizontal: 16, marginBottom: 20 },
   activeCurrencyRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16, backgroundColor: Colors.primaryLight, borderRadius: 14, padding: 12 },
   activeCurrencyFlag: { fontSize: 28 },
   activeCurrencyName: { fontSize: 15, fontWeight: '700', color: Colors.text },
@@ -125,7 +126,7 @@ const s = StyleSheet.create({
   currencyPillFlag: { fontSize: 14 },
   currencyPillSymbol: { fontSize: 14, fontWeight: '800', color: Colors.text },
   currencyPillCode: { fontSize: 11, fontWeight: '600', color: Colors.textSecondary },
-  card: { marginHorizontal: 16, marginBottom: 20, backgroundColor: Colors.bgCard, borderRadius: 20, overflow: 'hidden', shadowColor: Colors.shadowDark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 1, shadowRadius: 8, elevation: 3 },
+  card: { marginHorizontal: 16, marginBottom: 20 },
   divider: { height: 1, backgroundColor: Colors.borderLight, marginLeft: 72 },
 
   langGrid: { padding: 16, gap: 8 },

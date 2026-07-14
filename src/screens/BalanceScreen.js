@@ -268,7 +268,7 @@ function buildInsights(d, fmtC) {
 
 function StatCard({ icon, iconColor, iconBg, label, value, sub }) {
   return (
-    <Card style={s.statCard} padding={16}>
+    <Card style={s.statCard} padding={16} radius={18}>
       <View style={[s.statIcon, { backgroundColor: iconBg }]}>
         <Ionicons name={icon} size={20} color={iconColor} />
       </View>

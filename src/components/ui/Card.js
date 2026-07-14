@@ -4,19 +4,24 @@ import { Colors } from '../../theme/colors';
 import { Radius } from '../../theme/radius';
 import { Shadows } from '../../theme/shadows';
 
-export default function Card({ children, padding, style }) {
+export default function Card({ children, padding, radius = Radius.xl, variant = 'card', style }) {
   return (
-    <View style={[s.card, padding != null && { padding }, style]}>
+    <View
+      style={[
+        s.base,
+        { borderRadius: radius, ...Shadows[variant] },
+        padding != null && { padding },
+        style,
+      ]}
+    >
       {children}
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  card: {
+  base: {
     backgroundColor: Colors.bgCard,
-    borderRadius: Radius.xl,
     overflow: 'hidden',
-    ...Shadows.card,
   },
 });
