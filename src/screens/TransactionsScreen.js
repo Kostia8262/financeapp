@@ -56,26 +56,26 @@ export default function TransactionsScreen() {
   };
 
   const filtered = search
-    ? transactions.filter(t =>
-        t.category_name?.toLowerCase().includes(search.toLowerCase()) ||
-        t.note?.toLowerCase().includes(search.toLowerCase())
+    ? transactions.filter(tx =>
+        tx.category_name?.toLowerCase().includes(search.toLowerCase()) ||
+        tx.note?.toLowerCase().includes(search.toLowerCase())
       )
     : transactions;
 
   // Group by date
   const grouped = [];
   let lastDate = null;
-  for (const t of filtered) {
-    if (t.date !== lastDate) {
-      grouped.push({ type: 'header', date: t.date, key: 'h_' + t.date });
-      lastDate = t.date;
+  for (const tx of filtered) {
+    if (tx.date !== lastDate) {
+      grouped.push({ type: 'header', date: tx.date, key: 'h_' + tx.date });
+      lastDate = tx.date;
     }
-    grouped.push({ ...t, type: 'item', key: String(t.id) });
+    grouped.push({ ...tx, type: 'item', key: String(tx.id) });
   }
 
   const renderItem = ({ item }) => {
     if (item.type === 'header') {
-      return <Text style={s.dateHeader}>{formatDate(item.date)}</Text>;
+      return <Text style={s.dateHeader}>{formatDate(item.date, t('locale'))}</Text>;
     }
     const isIncome = item.type === 'income';
     return (
@@ -95,7 +95,7 @@ export default function TransactionsScreen() {
             <TouchableOpacity
               onPress={() => router.push({
                 pathname: '/add-transaction',
-                params: { id: item.id, amount: item.amount, type: item.type, category_id: item.category_id, note: item.note, date: item.date },
+                params: { id: item.id, amount: item.amount, type: item.type, category_id: item.category_id, note: item.note, date: item.date, currency: item.currency },
               })}
               style={s.actionBtn}
             >
@@ -110,9 +110,9 @@ export default function TransactionsScreen() {
     );
   };
 
-  const totalFiltered = filtered.reduce((s, t) => {
-    if (t.type === 'income') return { ...s, income: s.income + t.amount };
-    return { ...s, expense: s.expense + t.amount };
+  const totalFiltered = filtered.reduce((s, tx) => {
+    if (tx.type === 'income') return { ...s, income: s.income + tx.amount };
+    return { ...s, expense: s.expense + tx.amount };
   }, { income: 0, expense: 0 });
 
   return (

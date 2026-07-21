@@ -159,7 +159,7 @@ export default function CategoriesScreen() {
               <View style={[s.previewIcon, { backgroundColor: color + '18' }]}>
                 <Ionicons name={icon} size={28} color={color} />
               </View>
-              <Text style={[s.previewName, { color }]}>{name || 'Название'}</Text>
+              <Text style={[s.previewName, { color }]}>{name || t('name_fallback')}</Text>
             </View>
 
             <Text style={s.subLabel}>{t('color')}</Text>

@@ -415,7 +415,7 @@ export default function HomeScreen() {
           ) : (
             <Card>
               {recent.map((tx, i) => (
-                <TxRow key={tx.id} item={tx} last={i === recent.length - 1} noCategory={t('no_category')} />
+                <TxRow key={tx.id} item={tx} last={i === recent.length - 1} noCategory={t('no_category')} locale={locale} />
               ))}
             </Card>
           )}
@@ -564,7 +564,7 @@ function CatChip({ cat, width, onPress }) {
   );
 }
 
-function TxRow({ item, last, noCategory }) {
+function TxRow({ item, last, noCategory, locale }) {
   const { fmtC } = useCurrency();
   const isIncome = item.type === 'income';
   return (
@@ -580,7 +580,7 @@ function TxRow({ item, last, noCategory }) {
         <Text style={[s.txAmount, { color: isIncome ? Colors.income : Colors.expense }]}>
           {isIncome ? '+' : '−'}{fmtC(item.amount)}
         </Text>
-        <Text style={s.txDate}>{formatShortDate(item.date)}</Text>
+        <Text style={s.txDate}>{formatShortDate(item.date, locale)}</Text>
       </View>
     </View>
   );

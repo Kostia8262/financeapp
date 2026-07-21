@@ -92,8 +92,8 @@ export default function CalendarModal({ visible, onClose, mode = 'range', from, 
   const handleApply = () => {
     if (!selFrom) return;
     const f = dateToISO(selFrom);
-    const t = dateToISO(selTo || selFrom);
-    onApply(f, t);
+    const tv = dateToISO(selTo || selFrom);
+    onApply(f, tv);
     onClose();
   };
 

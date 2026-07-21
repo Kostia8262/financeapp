@@ -17,16 +17,16 @@ export function formatMoneyCompact(amount, currency = '₴') {
   return `${sign}${currency}${abs.toLocaleString('uk-UA', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
 
-export function formatDate(dateStr) {
+export function formatDate(dateStr, locale = 'ru-RU') {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return d.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
-export function formatShortDate(dateStr) {
+export function formatShortDate(dateStr, locale = 'ru-RU') {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  return d.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' });
+  return d.toLocaleDateString(locale, { day: '2-digit', month: 'short' });
 }
 
 export function todayISO() {

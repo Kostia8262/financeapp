@@ -10,19 +10,21 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getCategories, addTransaction, updateTransaction } from '../database/db';
 import { Colors } from '../theme/colors';
 import { useCurrency } from '../context/CurrencyContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const { width, height } = Dimensions.get('window');
 const KEY_SIZE = (width - 0) / 5;
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
 
-function formatDateDisplay(iso) {
+function formatDateDisplay(iso, locale, t) {
   const d = new Date(iso + 'T00:00:00');
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const diff = Math.round((today - d) / 86400000);
-  if (diff === 0) return 'Сегодня, ' + d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
-  if (diff === 1) return 'Вчера, ' + d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
-  return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+  const dateStr = d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+  if (diff === 0) return `${t('today')}, ${dateStr}`;
+  if (diff === 1) return `${t('yesterday')}, ${dateStr}`;
+  return dateStr;
 }
 
 function evaluate(a, op, b) {
@@ -42,6 +44,8 @@ export default function AddTransactionScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { currency } = useCurrency();
+  const { t } = useLanguage();
+  const locale = t('locale');
 
   const editing = params.id ? {
     id: Number(params.id),
@@ -50,6 +54,7 @@ export default function AddTransactionScreen() {
     category_id: params.category_id ? Number(params.category_id) : null,
     note: params.note || '',
     date: params.date,
+    currency: params.currency || null,
   } : null;
 
   const [type, setType] = useState(editing?.type || params.initialType || 'expense');
@@ -132,7 +137,7 @@ export default function AddTransactionScreen() {
       amount = evaluate(prevValue, pendingOp, amount);
     }
     amount = Math.abs(parseFloat(amount.toFixed(2)));
-    if (!amount || amount <= 0) { Alert.alert('Ошибка', 'Сумма должна быть больше нуля'); return; }
+    if (!amount || amount <= 0) { Alert.alert(t('error'), t('amount_must_be_positive')); return; }
     // Always have a category — use first available as fallback
     const finalCatId = categoryId || categories[0]?.id || null;
 
@@ -144,9 +149,9 @@ export default function AddTransactionScreen() {
       }
       router.back();
     } catch (e) {
-      Alert.alert('Ошибка', e.message);
+      Alert.alert(t('error'), e.message);
     }
-  }, [display, pendingOp, prevValue, justCalc, type, categoryId, categories, note, date, editing]);
+  }, [display, pendingOp, prevValue, justCalc, type, categoryId, categories, note, date, editing, t]);
 
   // ── Colors ────────────────────────────────────────────────────
   const typeColor = type === 'income' ? Colors.income : Colors.primary;
@@ -167,7 +172,7 @@ export default function AddTransactionScreen() {
         {/* Left: Type toggle */}
         <TouchableOpacity
           style={s.headerPanelLeft}
-          onPress={() => setType(t => t === 'income' ? 'expense' : 'income')}
+          onPress={() => setType(prev => prev === 'income' ? 'expense' : 'income')}
           activeOpacity={0.85}
         >
           <LinearGradient colors={typeGradient} style={s.headerGrad}>
@@ -176,11 +181,11 @@ export default function AddTransactionScreen() {
                 <Ionicons name="arrow-back" size={20} color="rgba(255,255,255,0.85)" />
               </TouchableOpacity>
             </View>
-            <Text style={s.headerSub}>Тип операции</Text>
-            <Text style={s.headerMain}>{isIncome ? 'Доход' : 'Расход'}</Text>
+            <Text style={s.headerSub}>{t('type_label')}</Text>
+            <Text style={s.headerMain}>{isIncome ? t('type_income') : t('type_expense')}</Text>
             <View style={s.headerHint}>
               <Ionicons name="swap-horizontal" size={12} color="rgba(255,255,255,0.65)" />
-              <Text style={s.headerHintTxt}>нажмите чтобы сменить</Text>
+              <Text style={s.headerHintTxt}>{t('tap_change_type')}</Text>
             </View>
           </LinearGradient>
         </TouchableOpacity>
@@ -192,13 +197,13 @@ export default function AddTransactionScreen() {
           activeOpacity={0.85}
         >
           <LinearGradient colors={catGradient} style={s.headerGrad}>
-            <Text style={s.headerSub}>Категория</Text>
+            <Text style={s.headerSub}>{t('category')}</Text>
             <Text style={s.headerMain} numberOfLines={1}>
-              {selectedCat?.name || 'Выбрать'}
+              {selectedCat?.name || t('choose')}
             </Text>
             <View style={s.headerHint}>
               <Ionicons name="chevron-down" size={12} color="rgba(255,255,255,0.65)" />
-              <Text style={s.headerHintTxt}>нажмите чтобы выбрать</Text>
+              <Text style={s.headerHintTxt}>{t('tap_choose_category')}</Text>
             </View>
           </LinearGradient>
         </TouchableOpacity>
@@ -207,7 +212,7 @@ export default function AddTransactionScreen() {
       {/* ── Amount Display ── */}
       <View style={s.amountArea}>
         <Text style={[s.amountTypeLabel, { color: typeColor }]}>
-          {isIncome ? 'Доход' : 'Расход'}
+          {isIncome ? t('type_income') : t('type_expense')}
           {pendingOp ? <Text style={s.opLabel}>  {pendingOp}  {prevValue}</Text> : null}
         </Text>
         <View style={s.amountRow}>
@@ -224,7 +229,7 @@ export default function AddTransactionScreen() {
           style={s.noteInput}
           value={note}
           onChangeText={setNote}
-          placeholder="Заметки..."
+          placeholder={t('note_placeholder')}
           placeholderTextColor={Colors.textMuted}
           returnKeyType="done"
         />
@@ -263,7 +268,7 @@ export default function AddTransactionScreen() {
             {/* Row 4 */}
             <View style={s.row}>
               <NumKey label="+" onPress={() => pressOperator('+')} isOp active={pendingOp === '+'} />
-              <NumKey label="₴" onPress={() => {}} isSpecial />
+              <NumKey label={currency.symbol} onPress={() => {}} isSpecial isCurr />
               <NumKey label="0" onPress={() => pressDigit('0')} />
               <NumKey label="," onPress={pressDecimal} />
             </View>
@@ -279,7 +284,7 @@ export default function AddTransactionScreen() {
 
       {/* ── Date ── */}
       <View style={s.dateBar}>
-        <Text style={s.dateTxt}>{formatDateDisplay(date)}</Text>
+        <Text style={s.dateTxt}>{formatDateDisplay(date, locale, t)}</Text>
       </View>
 
       {/* ── Category Picker Modal ── */}
@@ -287,7 +292,7 @@ export default function AddTransactionScreen() {
         <View style={s.overlay}>
           <View style={s.sheet}>
             <View style={s.sheetHeader}>
-              <Text style={s.sheetTitle}>Категория</Text>
+              <Text style={s.sheetTitle}>{t('category')}</Text>
               <TouchableOpacity onPress={() => setShowCatPicker(false)}>
                 <Ionicons name="close" size={24} color={Colors.text} />
               </TouchableOpacity>
@@ -322,10 +327,9 @@ export default function AddTransactionScreen() {
   );
 }
 
-function NumKey({ label, onPress, onLongPress, isOp, isSpecial, active }) {
+function NumKey({ label, onPress, onLongPress, isOp, isSpecial, active, isCurr }) {
   const isBack = label === 'back';
   const isCal = label === 'cal';
-  const isCurr = label === '₴';
 
   return (
     <TouchableOpacity

@@ -50,8 +50,8 @@ export default function BalanceScreen() {
   } = data;
 
   const balanceColor = balance >= 0 ? Colors.income : Colors.expense;
-  const insights = buildInsights(data, fmtC);
-  const maxTrend = Math.max(...trend.map(t => Math.max(t.income, t.expense)), 1);
+  const insights = buildInsights(data, fmtC, t);
+  const maxTrend = Math.max(...trend.map(row => Math.max(row.income, row.expense)), 1);
 
   return (
     <View style={s.container}>
@@ -195,27 +195,27 @@ export default function BalanceScreen() {
 
 // ─── Dynamic insights generator ────────────────────────────────
 
-function buildInsights(d, fmtC) {
+function buildInsights(d, fmtC, t) {
   const tips = [];
   const { balance, curIncome, curExpense, prevExpense, projected, runway, savings, expGrowth, topCat, dailyAvg } = d;
 
   if (curExpense > curIncome && curIncome > 0) {
     tips.push({
       icon: 'warning-outline', color: Colors.expense,
-      title: 'Расходы превышают доходы',
-      body: `Превышение: ${fmtC(curExpense - curIncome)}. Попробуйте сократить необязательные расходы.`,
+      title: t('tip_overspend_title'),
+      body: `${t('tip_overspend_body_pre')}${fmtC(curExpense - curIncome)}${t('tip_overspend_body_suf')}`,
     });
   } else if (savings >= 20) {
     tips.push({
       icon: 'star', color: Colors.income,
-      title: 'Отличный уровень сбережений',
-      body: `Вы сберегаете ${savings}% дохода — это выше нормы. Продолжайте в том же духе!`,
+      title: t('tip_great_savings_title'),
+      body: `${t('tip_great_savings_body_pre')}${savings}${t('tip_great_savings_body_suf')}`,
     });
   } else if (savings > 0) {
     tips.push({
       icon: 'trending-up', color: Colors.primary,
-      title: `Норма сбережений: ${savings}%`,
-      body: 'Рекомендуется откладывать не менее 20% дохода. Попробуйте увеличить на 5%.',
+      title: `${t('tip_savings_rate_title_pre')}${savings}%`,
+      body: t('tip_savings_rate_body'),
     });
   }
 
@@ -223,14 +223,14 @@ function buildInsights(d, fmtC) {
     if (expGrowth > 20) {
       tips.push({
         icon: 'arrow-up-circle', color: Colors.expense,
-        title: `Расходы выросли на ${expGrowth}%`,
-        body: 'По сравнению с прошлым месяцем траты значительно увеличились.',
+        title: `${t('tip_expense_grew_title_pre')}${expGrowth}${t('tip_expense_grew_title_suf')}`,
+        body: t('tip_expense_grew_body'),
       });
     } else if (expGrowth < -10) {
       tips.push({
         icon: 'arrow-down-circle', color: Colors.income,
-        title: `Расходы снизились на ${Math.abs(expGrowth)}%`,
-        body: 'Отличный прогресс! Экономия по сравнению с прошлым месяцем.',
+        title: `${t('tip_expense_dropped_title_pre')}${Math.abs(expGrowth)}${t('tip_expense_dropped_title_suf')}`,
+        body: t('tip_expense_dropped_body'),
       });
     }
   }
@@ -238,32 +238,32 @@ function buildInsights(d, fmtC) {
   if (topCat) {
     tips.push({
       icon: 'pie-chart', color: topCat.color || Colors.primary,
-      title: `Главная статья: ${topCat.name}`,
-      body: `${fmtC(topCat.total)} в этом месяце. Проверьте, можно ли оптимизировать.`,
+      title: `${t('tip_top_category_title_pre')}${topCat.name}`,
+      body: `${fmtC(topCat.total)}${t('tip_top_category_body_suf')}`,
     });
   }
 
   if (runway !== null && runway < 30 && runway >= 0) {
     tips.push({
       icon: 'hourglass', color: Colors.warning,
-      title: `Баланса хватит на ${runway} дней`,
-      body: 'Рекомендуется пополнить баланс или снизить ежедневные расходы.',
+      title: `${t('tip_runway_title_pre')}${runway}${t('tip_runway_title_suf')}`,
+      body: t('tip_runway_body'),
     });
   }
 
   if (dailyAvg > 0) {
     tips.push({
       icon: 'analytics-outline', color: Colors.primary,
-      title: 'Ежедневные расходы',
-      body: `В среднем ${fmtC(dailyAvg)}/день. Прогноз до конца месяца: ${fmtC(projected)}.`,
+      title: t('tip_daily_avg_title'),
+      body: `${t('tip_daily_avg_body_pre')}${fmtC(dailyAvg)}${t('tip_daily_avg_body_mid')}${fmtC(projected)}${t('tip_daily_avg_body_suf')}`,
     });
   }
 
   if (tips.length === 0) {
     tips.push({
       icon: 'information-circle', color: Colors.textMuted,
-      title: 'Добавьте операции',
-      body: 'Внесите доходы и расходы, чтобы увидеть персональные подсказки.',
+      title: t('tip_no_data_title'),
+      body: t('add_ops_tips'),
     });
   }
 
