@@ -3,7 +3,7 @@ import {
   Alert, Animated, Dimensions, Modal, PanResponder, RefreshControl,
   ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View,
 } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import {
   getRangeBalance, getTransactions, getCategoryStats, getCategories,
@@ -129,7 +129,8 @@ function Skeleton({ width, height, radius = 10, style }) {
 
 // ─── Main component ───────────────────────────────────────────
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen() {
+  const router = useRouter();
   const { currency, fmt, fmtC } = useCurrency();
   const { t } = useLanguage();
   const now = new Date();
@@ -279,7 +280,7 @@ export default function HomeScreen({ navigation }) {
   const bottomCats  = sortedCats.slice(8, 12);
 
   const openAdd = (cat) => {
-    navigation.navigate('AddTransaction', { initialType: chartTab, initialCategoryId: cat.id });
+    router.push({ pathname: '/add-transaction', params: { initialType: chartTab, initialCategoryId: cat.id } });
   };
 
   const locale = t('locale');
@@ -309,7 +310,7 @@ export default function HomeScreen({ navigation }) {
               </Text>
               <Text style={s.heroSub}>{t('period_balance')}</Text>
             </View>
-            <TouchableOpacity style={s.profileBtn} onPress={() => navigation.navigate('Profile')}>
+            <TouchableOpacity style={s.profileBtn} onPress={() => router.push('/profile')}>
               <Ionicons name="person-circle-outline" size={26} color="rgba(255,255,255,0.9)" />
             </TouchableOpacity>
           </View>
@@ -404,7 +405,7 @@ export default function HomeScreen({ navigation }) {
         <View style={[s.section, { marginBottom: 100 }]}>
           <View style={s.sectionHeader}>
             <Text style={s.sectionTitle}>{t('recent_ops')}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Transactions')}>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/transactions')}>
               <Text style={s.seeAll}>{t('see_all')}</Text>
             </TouchableOpacity>
           </View>

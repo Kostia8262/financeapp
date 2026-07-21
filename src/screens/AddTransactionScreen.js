@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getCategories, addTransaction, updateTransaction } from '../database/db';
 import { Colors } from '../theme/colors';
 import { useCurrency } from '../context/CurrencyContext';
@@ -37,11 +38,21 @@ function roundDisplay(n) {
   return s;
 }
 
-export default function AddTransactionScreen({ navigation, route }) {
+export default function AddTransactionScreen() {
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const { currency } = useCurrency();
-  const editing = route.params?.transaction;
 
-  const [type, setType] = useState(editing?.type || route.params?.initialType || 'expense');
+  const editing = params.id ? {
+    id: Number(params.id),
+    amount: Number(params.amount),
+    type: params.type,
+    category_id: params.category_id ? Number(params.category_id) : null,
+    note: params.note || '',
+    date: params.date,
+  } : null;
+
+  const [type, setType] = useState(editing?.type || params.initialType || 'expense');
   const [display, setDisplay] = useState(editing ? String(editing.amount) : '0');
   const [prevValue, setPrevValue] = useState(null);
   const [pendingOp, setPendingOp] = useState(null);
@@ -49,7 +60,7 @@ export default function AddTransactionScreen({ navigation, route }) {
   const [note, setNote] = useState(editing?.note || '');
   const [date, setDate] = useState(editing?.date || todayISO());
   const [categoryId, setCategoryId] = useState(
-    editing?.category_id || (route.params?.initialCategoryId ? Number(route.params.initialCategoryId) : null)
+    editing?.category_id || (params.initialCategoryId ? Number(params.initialCategoryId) : null)
   );
   const [categories, setCategories] = useState([]);
   const [showCatPicker, setShowCatPicker] = useState(false);
@@ -131,7 +142,7 @@ export default function AddTransactionScreen({ navigation, route }) {
       } else {
         await addTransaction({ amount, type, categoryId: finalCatId, note, date, currency: currency.code });
       }
-      navigation.goBack();
+      router.back();
     } catch (e) {
       Alert.alert('Ошибка', e.message);
     }
@@ -161,7 +172,7 @@ export default function AddTransactionScreen({ navigation, route }) {
         >
           <LinearGradient colors={typeGradient} style={s.headerGrad}>
             <View style={s.headerBack}>
-              <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+              <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
                 <Ionicons name="arrow-back" size={20} color="rgba(255,255,255,0.85)" />
               </TouchableOpacity>
             </View>

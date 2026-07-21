@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
   Alert, TextInput, StatusBar,
 } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getTransactions, deleteTransaction } from '../database/db';
@@ -17,7 +17,8 @@ import { useLanguage } from '../context/LanguageContext';
 import Card from '../components/ui/Card';
 import EmptyState from '../components/ui/EmptyState';
 
-export default function TransactionsScreen({ navigation }) {
+export default function TransactionsScreen() {
+  const router = useRouter();
   const { currency, fmt } = useCurrency();
   const { t } = useLanguage();
   const FILTERS = [
@@ -92,7 +93,10 @@ export default function TransactionsScreen({ navigation }) {
           </Text>
           <View style={s.itemActions}>
             <TouchableOpacity
-              onPress={() => navigation.navigate('AddTransaction', { transaction: item })}
+              onPress={() => router.push({
+                pathname: '/add-transaction',
+                params: { id: item.id, amount: item.amount, type: item.type, category_id: item.category_id, note: item.note, date: item.date },
+              })}
               style={s.actionBtn}
             >
               <Ionicons name="pencil-outline" size={15} color={Colors.textMuted} />
@@ -122,7 +126,7 @@ export default function TransactionsScreen({ navigation }) {
             <Text style={[s.currBadgeTxt, { color: Colors.primary }]}>{currency.flag} {currency.code}</Text>
           </View>
         </View>
-        <TouchableOpacity style={s.addBtn} onPress={() => navigation.navigate('AddTransaction')}>
+        <TouchableOpacity style={s.addBtn} onPress={() => router.push('/add-transaction')}>
           <LinearGradientInline />
         </TouchableOpacity>
       </View>

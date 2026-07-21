@@ -4,6 +4,7 @@ import {
   Alert, StatusBar, Linking, ActivityIndicator, Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
@@ -23,7 +24,8 @@ import ModalActions from '../components/ui/ModalActions';
 
 const BACKUP_FILENAME = 'FinanceApp_Backup.json';
 
-export default function ProfileScreen({ navigation }) {
+export default function ProfileScreen() {
+  const router = useRouter();
   const { currency } = useCurrency();
   const { t } = useLanguage();
   const appVersion = useAppVersion(t('locale'));
@@ -152,7 +154,7 @@ export default function ProfileScreen({ navigation }) {
 
         {/* ── Header ── */}
         <GradientHero style={s.hero}>
-          <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={22} color={Colors.white} />
           </TouchableOpacity>
           <View style={s.avatar}>

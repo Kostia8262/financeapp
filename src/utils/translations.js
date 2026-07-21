@@ -12,6 +12,11 @@ const MONTHS_SHORT_RU = ['Янв','Фев','Мар','Апр','Май','Июн','
 const MONTHS_SHORT_UK = ['Січ','Лют','Бер','Кві','Тра','Чер','Лип','Сер','Вер','Жов','Лис','Гру'];
 const MONTHS_SHORT_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+// Monday-first short weekday labels
+const DAYS_SHORT_RU = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const DAYS_SHORT_UK = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
+const DAYS_SHORT_EN = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+
 export const T = {
   ru: {
     // Locale
@@ -38,6 +43,10 @@ export const T = {
     done: 'Готово',
     error: 'Ошибка',
     load_error_msg: 'Не удалось загрузить данные. Потяните вниз, чтобы попробовать снова.',
+    update_title: 'Доступно обновление ✨',
+    update_body: 'Новая версия готова к установке. Обновление займёт несколько секунд.',
+    update_now: 'Обновить сейчас',
+    update_later: 'Позже',
     // Home
     period_balance: 'Баланс за период',
     recent_ops: 'Последние операции',
@@ -50,6 +59,10 @@ export const T = {
     period: 'Период',
     choose_range: 'Выбрать диапазон',
     all_time: 'Все время',
+    range_start: 'Начало',
+    range_end: 'Конец',
+    cal_apply: 'Применить',
+    cal_choose: 'Выбрать',
     choose_day: 'Выбрать день',
     today: 'Сегодня',
     day: 'День',
@@ -168,6 +181,7 @@ export const T = {
     ops_removed: 'Все операции удалены',
     months: MONTHS_RU,
     monthsShort: MONTHS_SHORT_RU,
+    daysShort: DAYS_SHORT_RU,
   },
   uk: {
     locale: 'uk-UA',
@@ -191,6 +205,10 @@ export const T = {
     done: 'Готово',
     error: 'Помилка',
     load_error_msg: 'Не вдалося завантажити дані. Потягніть вниз, щоб спробувати ще раз.',
+    update_title: 'Доступне оновлення ✨',
+    update_body: 'Нова версія готова до встановлення. Оновлення займе кілька секунд.',
+    update_now: 'Оновити зараз',
+    update_later: 'Пізніше',
     period_balance: 'Баланс за період',
     recent_ops: 'Останні операції',
     see_all: 'Всі →',
@@ -201,6 +219,10 @@ export const T = {
     period: 'Період',
     choose_range: 'Вибрати діапазон',
     all_time: 'Весь час',
+    range_start: 'Початок',
+    range_end: 'Кінець',
+    cal_apply: 'Застосувати',
+    cal_choose: 'Обрати',
     choose_day: 'Вибрати день',
     today: 'Сьогодні',
     day: 'День',
@@ -313,6 +335,7 @@ export const T = {
     ops_removed: 'Усі операції видалено',
     months: MONTHS_UK,
     monthsShort: MONTHS_SHORT_UK,
+    daysShort: DAYS_SHORT_UK,
   },
   en: {
     locale: 'en-US',
@@ -336,6 +359,10 @@ export const T = {
     done: 'Done',
     error: 'Error',
     load_error_msg: "Couldn't load data. Pull down to try again.",
+    update_title: 'Update available ✨',
+    update_body: 'A new version is ready to install. It only takes a few seconds.',
+    update_now: 'Update now',
+    update_later: 'Later',
     period_balance: 'Period balance',
     recent_ops: 'Recent transactions',
     see_all: 'All →',
@@ -346,6 +373,10 @@ export const T = {
     period: 'Period',
     choose_range: 'Select range',
     all_time: 'All time',
+    range_start: 'Start',
+    range_end: 'End',
+    cal_apply: 'Apply',
+    cal_choose: 'Choose',
     choose_day: 'Choose day',
     today: 'Today',
     day: 'Day',
@@ -458,5 +489,6 @@ export const T = {
     ops_removed: 'All transactions removed',
     months: MONTHS_EN,
     monthsShort: MONTHS_SHORT_EN,
+    daysShort: DAYS_SHORT_EN,
   },
 };

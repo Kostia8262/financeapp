@@ -4,16 +4,14 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
+import { useLanguage } from '../context/LanguageContext';
 import ModalActions from './ui/ModalActions';
 
 const { width } = Dimensions.get('window');
-const DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
 function isoToDate(s) { return new Date(s + 'T00:00:00'); }
 function dateToISO(d) { return d.toISOString().slice(0, 10); }
 function sameDay(a, b) { return a && b && dateToISO(a) === dateToISO(b); }
-function clamp(d, lo, hi) { return d < lo ? lo : d > hi ? hi : d; }
 
 // Get monday-based week day (0=Mon … 6=Sun)
 function weekDay(d) { return (d.getDay() + 6) % 7; }
@@ -38,6 +36,10 @@ function buildGrid(year, month) {
  *  onApply(from, to)  – for range; onApply(date) – for single
  */
 export default function CalendarModal({ visible, onClose, mode = 'range', from, to, onApply }) {
+  const { t } = useLanguage();
+  const locale = t('locale');
+  const months = t('months');
+  const daysShort = t('daysShort');
   const today = new Date(); today.setHours(0, 0, 0, 0);
 
   const [viewYear, setViewYear] = useState(() => {
@@ -115,7 +117,7 @@ export default function CalendarModal({ visible, onClose, mode = 'range', from, 
             <TouchableOpacity style={s.navBtn} onPress={prevMonth}>
               <Ionicons name="chevron-back" size={20} color={Colors.text} />
             </TouchableOpacity>
-            <Text style={s.navTitle}>{MONTHS[viewMonth]} {viewYear}</Text>
+            <Text style={s.navTitle}>{months[viewMonth]} {viewYear}</Text>
             <TouchableOpacity style={s.navBtn} onPress={nextMonth}>
               <Ionicons name="chevron-forward" size={20} color={Colors.text} />
             </TouchableOpacity>
@@ -125,16 +127,16 @@ export default function CalendarModal({ visible, onClose, mode = 'range', from, 
           {mode === 'range' && (
             <View style={s.rangeRow}>
               <TouchableOpacity style={[s.rangeLabel, picking === 'from' && s.rangeLabelActive]} onPress={() => setPicking('from')}>
-                <Text style={s.rangeLabelSub}>Начало</Text>
+                <Text style={s.rangeLabelSub}>{t('range_start')}</Text>
                 <Text style={[s.rangeLabelVal, picking === 'from' && { color: Colors.primary }]}>
-                  {selFrom ? selFrom.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : '—'}
+                  {selFrom ? selFrom.toLocaleDateString(locale, { day: 'numeric', month: 'short' }) : '—'}
                 </Text>
               </TouchableOpacity>
               <Ionicons name="arrow-forward" size={16} color={Colors.textMuted} />
               <TouchableOpacity style={[s.rangeLabel, picking === 'to' && s.rangeLabelActive]} onPress={() => setPicking('to')}>
-                <Text style={s.rangeLabelSub}>Конец</Text>
+                <Text style={s.rangeLabelSub}>{t('range_end')}</Text>
                 <Text style={[s.rangeLabelVal, picking === 'to' && { color: Colors.primary }]}>
-                  {selTo ? selTo.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) : '—'}
+                  {selTo ? selTo.toLocaleDateString(locale, { day: 'numeric', month: 'short' }) : '—'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -142,7 +144,7 @@ export default function CalendarModal({ visible, onClose, mode = 'range', from, 
 
           {/* Day headers */}
           <View style={s.weekRow}>
-            {DAYS.map(d => <Text key={d} style={[s.weekLabel, (d === 'Сб' || d === 'Вс') && { color: Colors.expense }]}>{d}</Text>)}
+            {daysShort.map((d, i) => <Text key={d} style={[s.weekLabel, (i === 5 || i === 6) && { color: Colors.expense }]}>{d}</Text>)}
           </View>
 
           {/* Grid */}
@@ -182,8 +184,8 @@ export default function CalendarModal({ visible, onClose, mode = 'range', from, 
           {/* Buttons */}
           <View style={s.btnRow}>
             <ModalActions
-              cancelLabel="Отмена"
-              confirmLabel={mode === 'range' ? 'Применить' : 'Выбрать'}
+              cancelLabel={t('cancel')}
+              confirmLabel={mode === 'range' ? t('cal_apply') : t('cal_choose')}
               onCancel={onClose}
               onConfirm={handleApply}
               disabled={!selFrom}

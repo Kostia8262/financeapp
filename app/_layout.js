@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import * as Updates from 'expo-updates';
 import { CurrencyProvider } from '../src/context/CurrencyContext';
-import { LanguageProvider } from '../src/context/LanguageContext';
+import { LanguageProvider, useLanguage } from '../src/context/LanguageContext';
 import { Colors } from '../src/theme/colors';
 import { Spacing } from '../src/theme/spacing';
 import { Radius } from '../src/theme/radius';
@@ -50,50 +50,55 @@ function useOTAUpdate() {
   return { available, downloading, apply, dismiss: () => setAvailable(false) };
 }
 
-export default function RootLayout() {
+// Rendered inside the providers so it can use translations.
+function UpdateModal() {
+  const { t } = useLanguage();
   const { available, downloading, apply, dismiss } = useOTAUpdate();
 
+  return (
+    <Modal visible={available} transparent animationType="fade">
+      <View style={d.overlay}>
+        <View style={d.card}>
+          <View style={d.iconWrap}>
+            <Text style={d.icon}>🚀</Text>
+          </View>
+          <Text style={d.title}>{t('update_title')}</Text>
+          <Text style={d.body}>{t('update_body')}</Text>
+
+          <TouchableOpacity
+            style={d.primaryBtn}
+            onPress={apply}
+            disabled={downloading}
+            activeOpacity={0.85}
+          >
+            {downloading ? (
+              <ActivityIndicator color={Colors.white} size="small" />
+            ) : (
+              <Text style={d.primaryTxt}>{t('update_now')}</Text>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={d.secondaryBtn}
+            onPress={dismiss}
+            disabled={downloading}
+            activeOpacity={0.7}
+          >
+            <Text style={d.secondaryTxt}>{t('update_later')}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+export default function RootLayout() {
   return (
     <LanguageProvider>
       <CurrencyProvider>
         <StatusBar style="light" />
         <Stack screenOptions={{ headerShown: false }} />
-
-        <Modal visible={available} transparent animationType="fade">
-          <View style={d.overlay}>
-            <View style={d.card}>
-              <View style={d.iconWrap}>
-                <Text style={d.icon}>🚀</Text>
-              </View>
-              <Text style={d.title}>Доступно обновление ✨</Text>
-              <Text style={d.body}>
-                Новая версия готова к установке. Обновление займёт несколько секунд.
-              </Text>
-
-              <TouchableOpacity
-                style={d.primaryBtn}
-                onPress={apply}
-                disabled={downloading}
-                activeOpacity={0.85}
-              >
-                {downloading ? (
-                  <ActivityIndicator color={Colors.white} size="small" />
-                ) : (
-                  <Text style={d.primaryTxt}>Обновить сейчас</Text>
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={d.secondaryBtn}
-                onPress={dismiss}
-                disabled={downloading}
-                activeOpacity={0.7}
-              >
-                <Text style={d.secondaryTxt}>Позже</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+        <UpdateModal />
       </CurrencyProvider>
     </LanguageProvider>
   );
