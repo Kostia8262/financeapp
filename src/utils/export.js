@@ -2,12 +2,12 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { getAllTransactionsForExport } from '../database/db';
 
-export async function exportToCSV() {
+export async function exportToCSV(t) {
   const rows = await getAllTransactionsForExport();
 
-  const header = 'Дата,Тип,Сумма,Категория,Заметка\n';
+  const header = `${t('csv_col_date')},${t('csv_col_type')},${t('csv_col_amount')},${t('csv_col_category')},${t('csv_col_note')}\n`;
   const body = rows.map(r => {
-    const type = r.type === 'income' ? 'Доход' : 'Расход';
+    const type = r.type === 'income' ? t('type_income') : t('type_expense');
     const note = (r.note || '').replace(/"/g, '""');
     const category = (r.category || '').replace(/"/g, '""');
     return `${r.date},${type},${r.amount},"${category}","${note}"`;
@@ -23,7 +23,7 @@ export async function exportToCSV() {
   if (canShare) {
     await Sharing.shareAsync(filePath, {
       mimeType: 'text/csv',
-      dialogTitle: 'Экспорт финансов',
+      dialogTitle: t('export_csv'),
       UTI: 'public.comma-separated-values-text',
     });
   }

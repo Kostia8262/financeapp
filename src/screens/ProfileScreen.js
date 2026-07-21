@@ -38,7 +38,7 @@ export default function ProfileScreen() {
 
   const handleExport = async () => {
     setExporting(true);
-    try { await exportToCSV(); }
+    try { await exportToCSV(t); }
     catch (e) { Alert.alert(t('export_error_title'), e.message); }
     finally { setExporting(false); }
   };

@@ -30,8 +30,8 @@ function parseCSVLine(line) {
 function detectType(val) {
   if (!val) return null;
   const v = val.toLowerCase().trim();
-  if (v === 'доход' || v === 'income' || v === '+') return 'income';
-  if (v === 'расход' || v === 'expense' || v === '-') return 'expense';
+  if (v === 'доход' || v === 'дохід' || v === 'income' || v === '+') return 'income';
+  if (v === 'расход' || v === 'витрата' || v === 'expense' || v === '-') return 'expense';
   return null;
 }
 
@@ -67,12 +67,13 @@ export async function pickAndParseCSV() {
 
   const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().trim());
 
-  // Map column indices
+  // Map column indices — 'сум' matches both ru "сумма" and uk "сума";
+  // note matches ru "заметка", uk "нотатка", and "описан.." (description).
   const dateIdx = headers.findIndex(h => h.includes('дат') || h === 'date');
   const typeIdx = headers.findIndex(h => h.includes('тип') || h === 'type');
-  const amountIdx = headers.findIndex(h => h.includes('сумм') || h === 'amount');
+  const amountIdx = headers.findIndex(h => h.includes('сум') || h === 'amount');
   const categoryIdx = headers.findIndex(h => h.includes('катег') || h === 'category');
-  const noteIdx = headers.findIndex(h => h.includes('замет') || h === 'note' || h.includes('описан'));
+  const noteIdx = headers.findIndex(h => h.includes('замет') || h.includes('нотат') || h === 'note' || h.includes('описан'));
 
   if (amountIdx === -1) throw new Error('Не найдена колонка "Сумма" или "amount"');
 
