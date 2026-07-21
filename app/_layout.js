@@ -8,6 +8,9 @@ import {
 import * as Updates from 'expo-updates';
 import { CurrencyProvider } from '../src/context/CurrencyContext';
 import { LanguageProvider } from '../src/context/LanguageContext';
+import { Colors } from '../src/theme/colors';
+import { Spacing } from '../src/theme/spacing';
+import { Radius } from '../src/theme/radius';
 
 function useOTAUpdate() {
   const [available,   setAvailable]   = useState(false);
@@ -74,7 +77,7 @@ export default function RootLayout() {
                 activeOpacity={0.85}
               >
                 {downloading ? (
-                  <ActivityIndicator color="#fff" size="small" />
+                  <ActivityIndicator color={Colors.white} size="small" />
                 ) : (
                   <Text style={d.primaryTxt}>Обновить сейчас</Text>
                 )}
@@ -102,15 +105,15 @@ const d = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.55)',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: Spacing.xxl,
   },
   card: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
     borderRadius: 24,
-    padding: 24,
+    padding: Spacing.xxl,
     alignItems: 'center',
-    gap: 8,
+    gap: Spacing.sm,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -118,21 +121,21 @@ const d = StyleSheet.create({
     elevation: 16,
   },
   iconWrap: {
-    width: 64, height: 64, borderRadius: 20,
-    backgroundColor: '#EDE9FF',
+    width: 64, height: 64, borderRadius: Radius.xl,
+    backgroundColor: Colors.primaryLight,
     alignItems: 'center', justifyContent: 'center',
-    marginBottom: 4,
+    marginBottom: Spacing.xs,
   },
   icon:        { fontSize: 32 },
   title:       { fontSize: 20, fontWeight: '800', color: '#1A1A2E', textAlign: 'center' },
-  body:        { fontSize: 14, color: '#6B7280', textAlign: 'center', lineHeight: 20, marginBottom: 8 },
+  body:        { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', lineHeight: 20, marginBottom: Spacing.sm },
   primaryBtn:  {
-    width: '100%', backgroundColor: '#6C47FF',
-    borderRadius: 16, paddingVertical: 16,
+    width: '100%', backgroundColor: Colors.primary,
+    borderRadius: Radius.lg, paddingVertical: Spacing.lg,
     alignItems: 'center', justifyContent: 'center',
-    marginTop: 4, minHeight: 52,
+    marginTop: Spacing.xs, minHeight: 52,
   },
-  primaryTxt:  { fontSize: 16, fontWeight: '700', color: '#fff' },
-  secondaryBtn:{ width: '100%', paddingVertical: 12, alignItems: 'center' },
-  secondaryTxt:{ fontSize: 15, fontWeight: '600', color: '#9CA3AF' },
+  primaryTxt:  { fontSize: 16, fontWeight: '700', color: Colors.white },
+  secondaryBtn:{ width: '100%', paddingVertical: Spacing.md, alignItems: 'center' },
+  secondaryTxt:{ fontSize: 15, fontWeight: '600', color: Colors.textMuted },
 });

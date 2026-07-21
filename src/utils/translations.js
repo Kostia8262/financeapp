@@ -37,6 +37,7 @@ export const T = {
     no_data: 'Нет данных',
     done: 'Готово',
     error: 'Ошибка',
+    load_error_msg: 'Не удалось загрузить данные. Потяните вниз, чтобы попробовать снова.',
     // Home
     period_balance: 'Баланс за период',
     recent_ops: 'Последние операции',
@@ -189,6 +190,7 @@ export const T = {
     no_data: 'Немає даних',
     done: 'Готово',
     error: 'Помилка',
+    load_error_msg: 'Не вдалося завантажити дані. Потягніть вниз, щоб спробувати ще раз.',
     period_balance: 'Баланс за період',
     recent_ops: 'Останні операції',
     see_all: 'Всі →',
@@ -333,6 +335,7 @@ export const T = {
     no_data: 'No data',
     done: 'Done',
     error: 'Error',
+    load_error_msg: "Couldn't load data. Pull down to try again.",
     period_balance: 'Period balance',
     recent_ops: 'Recent transactions',
     see_all: 'All →',

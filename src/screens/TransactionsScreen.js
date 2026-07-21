@@ -30,13 +30,17 @@ export default function TransactionsScreen({ navigation }) {
   const [search, setSearch] = useState('');
 
   const load = useCallback(async () => {
-    const t = await getTransactions({
-      limit: 500,
-      type: filter === 'all' ? undefined : filter,
-      currency: currency.code,
-    });
-    setTransactions(t);
-  }, [filter, currency.code]);
+    try {
+      const rows = await getTransactions({
+        limit: 500,
+        type: filter === 'all' ? undefined : filter,
+        currency: currency.code,
+      });
+      setTransactions(rows);
+    } catch (e) {
+      Alert.alert(t('error'), t('load_error_msg'));
+    }
+  }, [filter, currency.code, t]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 

@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar,
+  Alert, View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar,
   Dimensions, PanResponder, Modal,
 } from 'react-native';
 import { useFocusEffect } from 'expo-router';
@@ -110,20 +110,24 @@ export default function ReportsScreen() {
     : rangeForPeriod(period, anchor);
 
   const load = useCallback(async () => {
-    const cur = currency.code;
-    const [s, all, ext, bothDaily] = await Promise.all([
-      getCategoryStats({ type: tab, dateFrom: range.from, dateTo: range.to, currency: cur }),
-      getCategoryStats({ dateFrom: range.from, dateTo: range.to, currency: cur }),
-      getExtendedStats({ type: tab, dateFrom: range.from, dateTo: range.to, currency: cur }),
-      getDailyDataBoth({ dateFrom: range.from, dateTo: range.to, currency: cur }),
-    ]);
-    const income  = all.filter(x => x.type === 'income').reduce((a, x) => a + x.total, 0);
-    const expense = all.filter(x => x.type === 'expense').reduce((a, x) => a + x.total, 0);
-    setTotals({ income, expense, balance: income - expense });
-    setStats(s.filter(x => x.total > 0));
-    setExtended(ext);
-    setDailyBothBars(bothDaily);
-  }, [tab, range.from, range.to, currency.code]);
+    try {
+      const cur = currency.code;
+      const [s, all, ext, bothDaily] = await Promise.all([
+        getCategoryStats({ type: tab, dateFrom: range.from, dateTo: range.to, currency: cur }),
+        getCategoryStats({ dateFrom: range.from, dateTo: range.to, currency: cur }),
+        getExtendedStats({ type: tab, dateFrom: range.from, dateTo: range.to, currency: cur }),
+        getDailyDataBoth({ dateFrom: range.from, dateTo: range.to, currency: cur }),
+      ]);
+      const income  = all.filter(x => x.type === 'income').reduce((a, x) => a + x.total, 0);
+      const expense = all.filter(x => x.type === 'expense').reduce((a, x) => a + x.total, 0);
+      setTotals({ income, expense, balance: income - expense });
+      setStats(s.filter(x => x.total > 0));
+      setExtended(ext);
+      setDailyBothBars(bothDaily);
+    } catch (e) {
+      Alert.alert(t('error'), t('load_error_msg'));
+    }
+  }, [tab, range.from, range.to, currency.code, t]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 

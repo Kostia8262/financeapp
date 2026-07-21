@@ -8,7 +8,11 @@ export function getDatabase() {
       const database = await SQLite.openDatabaseAsync('finance.db');
       await initDatabase(database);
       return database;
-    })();
+    })().catch(err => {
+      // Let the next call retry instead of replaying the same failure forever.
+      dbPromise = null;
+      throw err;
+    });
   }
   return dbPromise;
 }

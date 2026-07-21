@@ -40,9 +40,13 @@ export default function CategoriesScreen() {
   const [icon, setIcon] = useState(ICONS[0]);
 
   const load = useCallback(async () => {
-    const c = await getCategories(tab);
-    setCategories(c);
-  }, [tab]);
+    try {
+      const c = await getCategories(tab);
+      setCategories(c);
+    } catch (e) {
+      Alert.alert(t('error'), t('load_error_msg'));
+    }
+  }, [tab, t]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 

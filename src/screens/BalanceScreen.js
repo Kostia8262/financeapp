@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, Dimensions,
+  Alert, View, Text, StyleSheet, ScrollView, RefreshControl, StatusBar, Dimensions,
 } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,13 +25,17 @@ export default function BalanceScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
-    const [ins, tr] = await Promise.all([
-      getInsights(currency.code),
-      getMonthlyTrend(6, currency.code),
-    ]);
-    setData(ins);
-    setTrend(tr);
-  }, [currency.code]);
+    try {
+      const [ins, tr] = await Promise.all([
+        getInsights(currency.code),
+        getMonthlyTrend(6, currency.code),
+      ]);
+      setData(ins);
+      setTrend(tr);
+    } catch (e) {
+      Alert.alert(t('error'), t('load_error_msg'));
+    }
+  }, [currency.code, t]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
   const onRefresh = async () => { setRefreshing(true); await load(); setRefreshing(false); };

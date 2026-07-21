@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Animated, Dimensions, Modal, PanResponder, RefreshControl,
+  Alert, Animated, Dimensions, Modal, PanResponder, RefreshControl,
   ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View,
 } from 'react-native';
 import { useFocusEffect } from 'expo-router';
@@ -164,29 +164,34 @@ export default function HomeScreen({ navigation }) {
   const { dateFrom, dateTo } = getDateRange(periodType, anchorDate, customFrom, customTo);
 
   const load = useCallback(async () => {
-    const cur = currency.code;
-    const [m, tx, allInc, allExp, si, se] = await Promise.all([
-      getRangeBalance(dateFrom, dateTo, cur),
-      getTransactions({ limit: 8, currency: cur }),
-      getCategories('income'),
-      getCategories('expense'),
-      getCategoryStats({ type: 'income',  dateFrom, dateTo, currency: cur }),
-      getCategoryStats({ type: 'expense', dateFrom, dateTo, currency: cur }),
-    ]);
-    setMonthly(m);
-    setRecent(tx);
-    setAllCats({
-      income:  allInc.map(cat => {
-        const stat = si.find(s => s.id === cat.id);
-        return { id: cat.id, name: cat.name, value: stat?.total || 0, color: cat.color, icon: cat.icon };
-      }),
-      expense: allExp.map(cat => {
-        const stat = se.find(s => s.id === cat.id);
-        return { id: cat.id, name: cat.name, value: stat?.total || 0, color: cat.color, icon: cat.icon };
-      }),
-    });
-    setIsFirstLoad(false);
-    Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+    try {
+      const cur = currency.code;
+      const [m, tx, allInc, allExp, si, se] = await Promise.all([
+        getRangeBalance(dateFrom, dateTo, cur),
+        getTransactions({ limit: 8, currency: cur }),
+        getCategories('income'),
+        getCategories('expense'),
+        getCategoryStats({ type: 'income',  dateFrom, dateTo, currency: cur }),
+        getCategoryStats({ type: 'expense', dateFrom, dateTo, currency: cur }),
+      ]);
+      setMonthly(m);
+      setRecent(tx);
+      setAllCats({
+        income:  allInc.map(cat => {
+          const stat = si.find(s => s.id === cat.id);
+          return { id: cat.id, name: cat.name, value: stat?.total || 0, color: cat.color, icon: cat.icon };
+        }),
+        expense: allExp.map(cat => {
+          const stat = se.find(s => s.id === cat.id);
+          return { id: cat.id, name: cat.name, value: stat?.total || 0, color: cat.color, icon: cat.icon };
+        }),
+      });
+      Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+    } catch (e) {
+      Alert.alert(t('error'), t('load_error_msg'));
+    } finally {
+      setIsFirstLoad(false);
+    }
   }, [currency.code, dateFrom, dateTo]);
 
   useFocusEffect(useCallback(() => {
